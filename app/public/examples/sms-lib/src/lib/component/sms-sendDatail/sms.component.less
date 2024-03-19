@@ -1,0 +1,131 @@
+:host {
+  ::ng-deep {
+    .search-btns {
+      display: flex;
+      align-items: center;
+
+
+      .expand-box {
+        margin-left: 10px;
+        font-size: 12px;
+        color: #49536e;
+
+        &:hover {
+          color: #37ba9d;
+        }
+      }
+    }
+
+    .clear {
+      clear: both;
+    }
+
+    .ant-pagination-total-text {
+      display: none;
+    }
+    .ant-table-small > .ant-table-content > .ant-table-body {
+      margin: 0;
+    }
+
+    .ant-card-bordered {
+      border: none !important;
+    }
+  }
+}
+
+.item {
+  display: flex;
+  margin-bottom: 20px;
+
+  .item-name {
+    margin-right: 5px;
+    width: 100px;
+    text-align: right;
+  }
+
+  .item-value {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    flex: 1;
+    .box-span {
+      margin: 0 12px 8px 0;
+      padding: 0 20px;
+      border-radius: 2px;
+    }
+
+    .center-text {
+      margin: 0 8px;
+    }
+
+    .type-span {
+      display: flex;
+      align-items: center;
+      margin-right: 20px;
+      padding: 5px 10px;
+      background: #f3f4f9;
+      margin-bottom: 10px;
+      .span-icon {
+        margin-right: 6px;
+      }
+    }
+
+    .span-char {
+      margin-left: -10px;
+      margin-right: 10px;
+    }
+  }
+
+  .item-box {
+    border: 1px solid #e8e8e8;
+    width: 75%;
+    min-height: 100px;
+
+    .config-item {
+      padding: 10px;
+
+      .config-title {
+        margin: 5px 3px;
+      }
+    }
+  }
+}
+.msg-arrow {
+  position: relative;
+  margin-right: 35px !important;
+
+  &::after {
+    position: absolute;
+    right: -34px;
+    top: 0;
+    border-width: 17px;
+    border-style: solid;
+    border-color: transparent transparent transparent #f3f4f9;
+    width: 0;
+    height: 0;
+    content: "";
+  }
+}
+
+.break-all {
+  word-break: break-all;
+}
+
+::ng-deep .ant-calendar-time-picker-btn {
+  display: none !important;
+}
+
+.one-line {
+  display: block;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  ::ng-deep {
+    span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}

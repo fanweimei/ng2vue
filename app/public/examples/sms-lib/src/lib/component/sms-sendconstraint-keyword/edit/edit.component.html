@@ -1,0 +1,132 @@
+<!-- <div class="modal-header modal-header-update header-cls">
+  <div class="modal-title title" *ngIf="record.id === 0">新增敏感字</div>
+  <div class="modal-title title" *ngIf="record.id > 0">编辑敏感字</div>
+</div>
+<nz-card [nzBordered]="false" style="margin-bottom: 0">
+  <form nz-form [formGroup]="form" (ngSubmit)="save(form.value)" se-container="1" labelWidth="112" nzLayout="horizontal">
+    <se label="管控类型" required>
+      <nz-radio-group formControlName="controlType" (ngModelChange)="controlTypeChange($event)" [nzDisabled]="record.id > 0">
+        <label nz-radio nzValue="5">业务分类敏感字</label>
+        <label nz-radio nzValue="3">业务模板敏感字</label>
+        <label nz-radio nzValue="2">账号敏感字</label>
+        <label nz-radio nzValue="4">渠道敏感字</label>
+        <label nz-radio nzValue="1">全局敏感字</label>
+      </nz-radio-group>
+    </se>
+    <div *ngIf="controlType == 2" class="div-box">
+      <se class="form-item" label="关联账号" error="请输入正确的关联账号" required>
+        <nz-select
+          nzPlaceHolder="请选择关联账号"
+          [nzDisabled]="record.id > 0"
+          formControlName="targetId"
+          name="targetId"
+          [nzShowSearch]="true"
+          (nzOnSearch)="onFilters($event, userEnumsBack, controlType)"
+          (ngModelChange)="checkUnique()"
+        >
+          <ng-container *ngFor="let user of userEnums; let idx = index">
+            <nz-option *ngIf="record.id <= 0 && idx < 10" [nzValue]="user.value" [nzLabel]="user.label"></nz-option>
+            <nz-option *ngIf="record.id > 0" [nzValue]="user.value" [nzLabel]="user.label"></nz-option>
+          </ng-container>
+        </nz-select>
+      </se>
+    </div>
+    <div *ngIf="controlType == 3" class="div-box">
+      <se class="form-item" label="关联业务模板" error="请输入正确的关联业务模板" required>
+        <nz-select
+          nzPlaceHolder="请选择关联业务模板"
+          [nzDisabled]="record.id > 0"
+          formControlName="targetId"
+          name="targetId"
+          [nzShowSearch]="true"
+          (nzOnSearch)="onFilters($event, bizEnumsBack, controlType)"
+          (ngModelChange)="checkUnique()"
+          style="max-width: 608px"
+        >
+          <ng-container *ngFor="let biz of bizEnums; let idx = index">
+            <nz-option *ngIf="record.id <= 0 && idx < 10" [nzValue]="biz.value" [nzLabel]="biz.label"></nz-option>
+            <nz-option *ngIf="record.id > 0" [nzValue]="biz.value" [nzLabel]="biz.label"></nz-option>
+          </ng-container>
+        </nz-select>
+      </se>
+    </div>
+    <div *ngIf="controlType == 4" class="div-box">
+      <se class="form-item" label="关联渠道" error="请输入正确的关联渠道" required>
+        <nz-select
+          nzPlaceHolder="请选择关联渠道"
+          [nzDisabled]="record.id > 0"
+          formControlName="targetId"
+          name="targetId"
+          [nzShowSearch]="true"
+          (nzOnSearch)="onFilters($event, channelEnumsBack, controlType)"
+          (ngModelChange)="checkUnique()"
+        >
+          <ng-container *ngFor="let channel of channelEnums; let idx = index">
+            <nz-option *ngIf="record.id <= 0 && idx < 10" [nzValue]="channel.value" [nzLabel]="channel.label"></nz-option>
+            <nz-option *ngIf="record.id > 0" [nzValue]="channel.value" [nzLabel]="channel.label"></nz-option>
+          </ng-container>
+        </nz-select>
+      </se>
+    </div>
+    <div *ngIf="controlType == 5" class="div-box">
+      <se class="form-item" label="关联业务分类" error="请输入正确的关联业务分类" required>
+        <nz-select
+          nzPlaceHolder="请选择关联业务分类"
+          [nzDisabled]="record.id > 0"
+          formControlName="targetId"
+          name="targetId"
+          [nzShowSearch]="true"
+          (nzOnSearch)="onFilters($event, bizClassEnumsBack, controlType)"
+          (ngModelChange)="checkUnique()"
+          style="max-width: 608px"
+        >
+          <ng-container *ngFor="let biz of bizClassEnums; let idx = index">
+            <nz-option *ngIf="record.id <= 0 && idx < 10" [nzValue]="biz.value" [nzLabel]="biz.label"></nz-option>
+            <nz-option *ngIf="record.id > 0" [nzValue]="biz.value" [nzLabel]="biz.label"></nz-option>
+          </ng-container>
+        </nz-select>
+      </se>
+    </div>
+    <se label="管控策略" required>
+      <nz-radio-group formControlName="controlStrategy">
+        <label nz-radio nzValue="1">自动拦截</label>
+        <label nz-radio nzValue="2">人工审核</label>
+      </nz-radio-group>
+    </se>
+    <se label="敏感字类型" required>
+      <nz-radio-group formControlName="keywordType" (ngModelChange)="keywordTypeChange($event)">
+        <label nz-radio nzValue="1">单一敏感字</label>
+        <label nz-radio nzValue="2">逻辑敏感字</label>
+      </nz-radio-group>
+    </se>
+    <se label="敏感字内容" error="敏感字不能为空，且最多100个字符" style="line-height: 40px" required>
+      <textarea
+        (ngModelChange)="isValidLogicKeyword($event)"
+        nz-input
+        formControlName="keyword"
+        placeholder="请填写敏感字"
+        minLength="1"
+        maxLength="100"
+      ></textarea>
+      <span [hidden]="logicKeywordCont" style="color: red">只允许出现某种校验符号，否则逻辑敏感字会存在校验失败风险。</span>
+      <span [hidden]="keywordRepe" style="color: red">已有相同名称敏感字，请进行修改。</span>
+    </se>
+    <se label="" style="line-height: 40px; margin-top: -24px">
+      <div style="margin-bottom: -20px">
+        <span *ngIf="keywordType == 1">提示：输入的内容，作为一个完整的敏感字进行配对，不作逻辑识别和组合。</span>
+        <span *ngIf="keywordType == 2" style="display: block; line-height: 24px">
+          输入的内容，根据逻辑表达式进行敏感字匹配，允许的操作符如下：全“||”为或操作，全“&&”为与操作，不可或与两个操作同时存在。
+        </span>
+      </div>
+    </se>
+    <input type="hidden" nz-input formControlName="logicKeyword" name="logicKeyword" required />
+  </form>
+</nz-card>
+<div class="modal-footer modal-footer-update footer-cls">
+  <icc-button [btnType]="'hollow'" (btnClick)="close()">
+    <span>关闭</span>
+  </icc-button>
+  <icc-button [btnType]="'default'" (btnClick)="save(form.value)" [isDisabled]="!form.valid">
+    <span>保存</span>
+  </icc-button>
+</div> -->

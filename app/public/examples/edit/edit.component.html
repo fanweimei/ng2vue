@@ -1,0 +1,126 @@
+<div class="modal-header modal-header-update header-cls">
+  <div class="modal-title title">新增黑名单</div>
+</div>
+<nz-card [nzBordered]="false">
+  <form nz-form [formGroup]="form" se-container="1" labelWidth="112" nzLayout="horizontal">
+    <div class="content-wrapper">
+      <div class="top-wrapper">
+        <div class="strategy-box">
+          <label>管控类型：</label>
+          <nz-radio-group formControlName="strategyType" (ngModelChange)="strategyTypeChange($event)">
+            <label nz-radio nzValue="4">业务分类黑名单</label>
+            <label nz-radio nzValue="2">业务模板黑名单</label>
+            <label nz-radio nzValue="0">账号黑名单</label>
+            <label nz-radio nzValue="1">全局黑名单</label>
+          </nz-radio-group>
+        </div>
+        <div class="account-box" *ngIf="strategyType == 0">
+          <se class="control-nzselect" label="关联账号" error="请输入正确的关联账号" class="form-item" required>
+            <nz-select formControlName="target" name="target" [nzShowSearch]="true"
+              (nzOnSearch)="onFilters($event, userEnumsBack, 'userEnums')" (ngModelChange)="changeAccount()"
+              [nzPlaceHolder]="'请选择'">
+              <ng-container *ngFor="let user of userEnums; let idx = index">
+                <nz-option *ngIf="idx < 10" [nzValue]="user.value" [nzLabel]="user.label"></nz-option>
+              </ng-container>
+            </nz-select>
+          </se>
+        </div>
+        <div class="account-box" *ngIf="strategyType == 2">
+          <se class="control-nzselect" label="关联业务模板" error="请输入正确的业务模板" class="form-item" required>
+            <nz-select formControlName="target" name="target" style="width: 100%" [nzShowSearch]="true"
+              (nzOnSearch)="onFilters($event, bizEnumsBack, 'bizEnums')" (ngModelChange)="changeAccount()"
+              [nzPlaceHolder]="'请选择关联业务模板'">
+              <ng-container *ngFor="let biz of bizEnums; let idx = index">
+                <nz-option *ngIf="idx < 10" [nzValue]="biz.value" [nzLabel]="biz.label"></nz-option>
+              </ng-container>
+            </nz-select>
+          </se>
+        </div>
+        <div class="account-box" *ngIf="strategyType == 4">
+          <se class="control-nzselect" label="关联业务分类" error="请输入正确的业务分类" class="form-item" required>
+            <nz-select formControlName="target" name="target" style="width: 100%" [nzShowSearch]="true"
+              (nzOnSearch)="onFilters($event, bizClassEnumsBack, 'bizClassEnums')" (ngModelChange)="changeAccount()"
+              [nzPlaceHolder]="'请选择关联业务分类'">
+              <ng-container *ngFor="let biz of bizClassEnums; let idx = index">
+                <nz-option *ngIf="idx < 10" [nzValue]="biz.value" [nzLabel]="biz.label"></nz-option>
+              </ng-container>
+            </nz-select>
+          </se>
+        </div>
+      </div>
+      <div nz-row nzGutter="24">
+        <div nz-col nzSpan="16" style="border: 1px solid gainsboro">
+          <form nz-form style="margin: 10px 0">
+            <nz-form-item style="margin: 17px 0 0 0">
+              <nz-form-label [nzSpan]="6" nzFor="email">
+                {{ searchOptions.header }}
+              </nz-form-label>
+              <nz-form-control [nzSpan]="18">
+                <div class="search-wrapper">
+                  <input style="width: 280px" type="text" nz-input [attr.placeholder]="'输入' + searchOptions.header"
+                    [(ngModel)]="searchOptions.name" name="name" />
+                  <icc-button [btnType]="'default'" (btnClick)="getTableList(true)" style="margin-left: 10px">
+                    <i nz-icon nzType="search"></i>
+                  </icc-button>
+                </div>
+              </nz-form-control>
+            </nz-form-item>
+          </form>
+          <st [page]="{}" style="height: 340px; margin-top: 10px" #st [widthMode]="{ type: 'strict' }" [data]="url"
+            [columns]="columns" [ps]="pageSize" (change)="change($event)" [res]="res" [req]="req" [page]="page"
+            [noResult]="noResultRef">
+            <ng-template #noResultRef>
+              <div class="st-empty-box">
+                <img src="./assets/images/nothing/search.png" alt="" />
+                <p class="empty-text">抱歉，查询无此数据</p>
+              </div>
+            </ng-template>
+            <ng-template st-row="templ-xwRegId" let-item let-index="index">
+              <icc-table-text [textAlign]="'left'" [text]="item.openId"></icc-table-text>
+            </ng-template>
+            <ng-template st-row="templ-strategyTypeShow" let-item let-index="index">
+              {{ formatStrategy(item.strategyType) }}
+            </ng-template>
+          </st>
+        </div>
+        <div nz-col nzSpan="3" class="btn-box">
+          <icc-button style="margin-left: 15px" [isLoading]="false" [btnType]="'default'" (btnClick)="addItem()"
+            [isDisabled]="checkedList.length < 1">
+            <span>添加已选</span>
+          </icc-button>
+        </div>
+        <div nz-col class="gutter-row user-box" nzSpan="5">
+          <p class="title">
+            已选用户({{ selectList.length || 0 }})
+            <button nz-button nzType="link" class="ico-deleted" title="清空" (click)="clearSelectList()">
+              <i nz-icon nzType="delete"></i>
+            </button>
+          </p>
+          <div class="list-box">
+            <ng-container *ngFor="let item of selectList; let i = index">
+              <ul>
+                <li class="list">
+                  <span class="name">
+                    <icc-table-text [text]="item[searchOptions.field]" [width]="100"></icc-table-text>
+                  </span>
+                  <i nz-icon nzType="delete" nzTheme="outline" (click)="removeItem(i, item)"></i>
+                </li>
+              </ul>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</nz-card>
+<ng-template #totalTemplate>
+  <nz-spin [nzSpinning]="listCountLoading" [nzSize]="'small'">共 {{ stTotal }} 条</nz-spin>
+</ng-template>
+<div class="modal-footer modal-footer-update footer-cls">
+  <icc-button [btnType]="'hollow'" (btnClick)="close()">
+    <span>关闭</span>
+  </icc-button>
+  <icc-button [btnType]="'default'" (btnClick)="save(form.value)" [isDisabled]="!form.valid">
+    <span>保存</span>
+  </icc-button>
+</div>

@@ -1,0 +1,186 @@
+<div class="modal-header modal-header-update header">
+  <div class="modal-title title">查看详情</div>
+</div>
+<div class="main model-content-scroll" style="height: 800px">
+  <nz-card nzTitle="主渠道">
+    <form nz-form #f="ngForm" nz-form>
+      <div nz-row nzType="flex" nzJustify="space-around">
+        <div nz-col nzSpan="12">
+          <nz-form-label nzRequired nzSpan="6">渠道名称</nz-form-label>
+          <nz-form-control nzSpan="16">
+            {{ channelAutoSwitch.channelName }}
+          </nz-form-control>
+        </div>
+
+        <div nz-col nzSpan="12">
+          <nz-form-label nzRequired nzSpan="6">渠道号</nz-form-label>
+          <nz-form-control nzSpan="16">
+            {{ channelAutoSwitch.channelNum }}
+          </nz-form-control>
+        </div>
+
+        <div nz-col nzSpan="12">
+          <nz-form-label nzRequired nzSpan="6">所属运营商</nz-form-label>
+          <nz-form-control nzSpan="16">
+            {{ channelAutoSwitch.carrierName }}
+          </nz-form-control>
+        </div>
+
+        <div nz-col nzSpan="12">
+          <nz-form-label nzRequired nzSpan="6">支持运营商</nz-form-label>
+          <nz-form-control nzSpan="16">
+            {{ channelAutoSwitch.carriers }}
+          </nz-form-control>
+        </div>
+
+        <div nz-col nzSpan="12">
+          <nz-form-label nzRequired nzSpan="6">可发送省份</nz-form-label>
+          <nz-form-control nzSpan="16">
+            {{ channelAutoSwitch.supportProvincesStr }}
+          </nz-form-control>
+        </div>
+
+        <div nz-col nzSpan="12">
+          <nz-form-label nzRequired nzSpan="6">渠道商</nz-form-label>
+          <nz-form-control nzSpan="16">
+            {{ channelAutoSwitch.providerName }}
+          </nz-form-control>
+        </div>
+
+        <div nz-col nzSpan="24">
+          <nz-form-label nzSpan="3">可扩展长度</nz-form-label>
+          <nz-form-control nzSpan="16">
+            {{ channelAutoSwitch.extendNumLength }}
+          </nz-form-control>
+        </div>
+      </div>
+    </form>
+  </nz-card>
+
+  <nz-card nzTitle="备用渠道">
+    <form nz-form [formGroup]="form" [nzLayout]="'vertical'">
+      <nz-table formArrayName="items" [nzData]="items.value" [nzShowPagination]="false">
+        <thead>
+          <tr>
+            <th nzWidth="80px">渠道名称</th>
+            <th nzWidth="80px">渠道号</th>
+            <th nzWidth="140px">渠道商</th>
+            <th nzWidth="80px">所属运营商</th>
+            <th nzWidth="120px">支持运营商</th>
+            <th nzWidth="120px">可发送省份</th>
+            <th nzWidth="100px">可扩展长度</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+            <td>
+              <span nz-form-control>
+                <icc-table-text [text]="item.get('channelName')?.value" [width]="80"></icc-table-text>
+              </span>
+            </td>
+            <td>
+              <span nz-form-control>
+                {{ item.get("channelNum")?.value }}
+              </span>
+            </td>
+            <td>
+              <span nz-form-control>
+                {{ item.get("providerName")?.value }}
+              </span>
+            </td>
+            <td>
+              <span nz-form-control>
+                {{ item.get("carrierName")?.value }}
+              </span>
+            </td>
+            <td>
+              <span nz-form-control>
+                {{ item.get("carriers")?.value }}
+              </span>
+            </td>
+            <td>
+              <span nz-form-control>
+                <icc-table-text [text]="item.get('supportProvincesStr')?.value" [width]="100" textAlign="left"></icc-table-text>
+              </span>
+            </td>
+            <td>
+              <span nz-form-control>
+                {{ item.get("extendNumLength")?.value }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </form>
+  </nz-card>
+
+  <nz-card nzTitle="渠道自动切换配置">
+    <form nz-form [formGroup]="configForm" [nzLayout]="'vertical'">
+      <div nz-row nzType="flex" nzJustify="space-around">
+        <div nz-col nzSpan="6" style="margin-top: 20px">
+          运营商断连自动切换:
+          <span *ngIf="!configForm.value.disconnectEnabled">关闭</span>
+          <span *ngIf="configForm.value.disconnectEnabled">开启</span>
+        </div>
+
+        <div nz-col nzSpan="18" style="margin-top: 20px">
+          <div *ngIf="configForm.value.disconnectEnabled">
+            <span>断连时长</span>
+            <span>{{ configForm.value.disconnectMinutes }}分钟，自动切换至备用渠道。</span>
+            <span>恢复时长</span>
+            <span>{{ configForm.value.recoveryMinutes }}分钟，自动切回主渠道。</span>
+          </div>
+        </div>
+
+        <div nz-col nzSpan="6" style="margin-top: 20px">
+          识别成功率切换:
+          <span *ngIf="!configForm.value.packSuccessRateEnabled">关闭</span>
+          <span *ngIf="configForm.value.packSuccessRateEnabled">开启</span>
+        </div>
+
+        <div nz-col nzSpan="18" style="margin-top: 20px">
+          <div *ngIf="configForm.value.packSuccessRateEnabled">
+            <span>{{ configForm.value.packWithinMinutes }}分钟内，成功率低于</span>
+            <span>{{ configForm.value.packFailRateUnder }}%，且失败条数达到</span>
+            <span>{{ configForm.value.packFailCountReached }}条，</span>
+            <span>自动切换至备用渠道。</span>
+          </div>
+        </div>
+
+        <div nz-col nzSpan="6" style="margin-top: 20px">
+          识别错误码自动切换:
+          <span *ngIf="!configForm.value.errorCodeEnabled">关闭</span>
+          <span *ngIf="configForm.value.errorCodeEnabled">开启</span>
+        </div>
+        <div nz-col nzSpan="18" *ngIf="!configForm.value.errorCodeEnabled" style="margin-top: 20px"></div>
+        <div nz-col nzSpan="18" *ngIf="configForm.value.errorCodeEnabled" style="margin-top: 20px">
+          <nz-table formArrayName="errorItems" [nzData]="errorItems.value" [nzShowPagination]="false">
+            <thead>
+              <tr>
+                <th>错误代码</th>
+                <th>数量</th>
+                <th>时长（分钟）</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of errorItems.controls; let i = index" [formGroupName]="i">
+                <td>
+                  <span>{{ errorItems.value[i].errorCode }}</span>
+                </td>
+                <td>
+                  <span>{{ errorItems.value[i].errorCount }}</span>
+                </td>
+                <td>
+                  <span>{{ errorItems.value[i].durationMinutes }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </div>
+    </form>
+  </nz-card>
+</div>
+<!-- <div class="btn-group">
+  <icc-button [btnType]="'hollow'" (btnClick)="close()"><span>关闭</span></icc-button>
+</div> -->

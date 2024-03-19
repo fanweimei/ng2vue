@@ -1,0 +1,71 @@
+<div class="modal-header-update">
+  <div class="modal-title">智能客群</div>
+</div>
+
+<div class="tip">仅显示总数统计完毕的智能客群分组，若未出现您需要的分组，请稍后重新打开此页面。</div>
+
+<div class="modal-row">
+  <nz-tabset [nzTabBarGutter]="0" class="modal-column-1">
+    <nz-tab nzTitle="智能客群">
+      <nz-spin nzTip="加载中..." [nzSpinning]="loading" style="overflow: auto; height: 355px">
+        <div class="tree-box">
+          <nz-tree #customerList nzCheckable [nzData]="nodes" nzAsyncData="true" [nzExpandedKeys]="defaultExpandedKeys"
+            [nzSelectedKeys]="defaultSelectedKeys" (nzClick)="cusViewEvent($event)"
+            (nzCheckBoxChange)="rowCheckedChange($event)" nzShowLine="true" [nzTreeTemplate]="nzTreeTemplate">
+            <ng-template let-node let-origin="origin" #nzTreeTemplate>
+              <span class="ant-tree-title cell-text-ellipsis">{{ node.title }}</span>
+            </ng-template>
+          </nz-tree>
+        </div>
+      </nz-spin>
+    </nz-tab>
+  </nz-tabset>
+  <div class="modal-column-2">
+    <st #customerViewSt [widthMode]="{ type: 'strict' }" [scroll]="{ x: '730px' }" [data]="customerViewUrl"
+      [columns]="customerViewCols" [res]="res" [req]="req" ps="5" [noResult]="noResultRef">
+      <ng-template #noResultRef>
+        <div class="st-empty-box" style="min-height: 346px">
+          <img src="./assets/images/nothing/search.png" alt="" />
+          <p class="empty-text">抱歉，查询无此数据</p>
+        </div>
+      </ng-template>
+      <ng-template st-row="templ-group" let-item let-index="index">
+        <icc-multi-line-cell [list]="item.groups" [lines]="1"></icc-multi-line-cell>
+      </ng-template>
+      <ng-template st-row="tpl-name" let-item let-index="index">
+        <icc-table-text [text]="item.name" [width]="100"></icc-table-text>
+      </ng-template>
+      <ng-template st-row="tmpl-apppush" let-item let-index="index">
+        <icc-table-text [text]="formatTerminal(item, terminalType.apppush)" [width]="100"></icc-table-text>
+      </ng-template>
+      <ng-template st-row="tmpl-workwx" let-item let-index="index">
+        <icc-table-text [text]="formatTerminal(item, terminalType.workwx)" [width]="100"></icc-table-text>
+      </ng-template>
+      <ng-template st-row="tmpl-wechat" let-item let-index="index">
+        <icc-table-text [text]="formatTerminal(item, terminalType.wechat)" [width]="100"></icc-table-text>
+      </ng-template>
+    </st>
+  </div>
+  <div class="modal-column-3">
+    <icc-button [btnType]="'default'" (btnClick)="addAllCusViews()">
+      <span>添加已选</span>
+    </icc-button>
+  </div>
+  <div class="modal-column-4">
+    <p class="box-title">已选收信人</p>
+    <div class="list-box">
+      <ng-container *ngFor="let item of selectAddress">
+        <app-selected [text]="item.name" [count]="item.len" (delete)="onTagClose2(item)"></app-selected>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer modal-footer-update">
+  <icc-button [btnType]="'hollow'" (btnClick)="handleCancel()">
+    <span>取消</span>
+  </icc-button>
+  <icc-button [btnType]="'default'" (btnClick)="handleOk()" [isDisabled]="!okSelect">
+    <span>确定</span>
+  </icc-button>
+</div>

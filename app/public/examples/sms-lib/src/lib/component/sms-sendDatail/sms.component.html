@@ -1,0 +1,471 @@
+<nz-card [nzBordered]="true">
+  <form nz-form [nzLayout]="'inline'" class="search__form">
+    <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+      <div nz-col nzMd="8" nzSm="24" *ngIf="searchOptions.appTypeId === 4">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="aimTplId">模板ID</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <input nz-input [(ngModel)]="searchOptions.aimTplId" name="aimTplId" placeholder="请输入完整的模板ID" id="aimTplId" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="8" nzSm="24" *ngIf="searchOptions.appTypeId === 4">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="aimTplName">模板名称</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <input nz-input [(ngModel)]="searchOptions.aimTplName" name="aimTplName" placeholder="请输入完整的模板名称" id="aimTplName" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="8" nzSm="24" *ngIf="searchOptions.appTypeId !== 4 || expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="sendResult">发送结果</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <nz-select [(ngModel)]="searchOptions.sendResults.sendResult" name="sendResult" [nzShowSearch]="true">
+              <nz-option *ngFor="let item of searchOptions.sendResults.list; let idx = index" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="8" nzSm="24" *ngIf="searchOptions.appTypeId !== 4 || expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="sendResult">核验结果</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <nz-select [(ngModel)]="searchOptions.bizFormStates.bizFormState" name="sendResult" [nzShowSearch]="true">
+              <nz-option *ngFor="let item of searchOptions.bizFormStates.list; let idx = index" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="carrier">运营商</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <nz-select [(ngModel)]="searchOptions.carrier.carrierId" name="carrier" [nzShowSearch]="true">
+              <nz-option *ngFor="let item of searchOptions.carrier.carriers; let idx = index" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="phone">接收时间</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <nz-range-picker
+              extend
+              name="date"
+              [(ngModel)]="searchOptions.dateRange[0]"
+              [(ngModelEnd)]="searchOptions.dateRange[1]"
+              [nzFormat]="'yyyy-MM-dd'"
+              [nzAllowClear]="false"
+              [ngModelOptions]="{ standalone: true }"
+              (nzOnOk)="onOkDate()"
+              (nzOnOpenChange)="onOkDate()"
+            ></nz-range-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="8" nzSm="24" *ngIf="!queryParams.isDetail && expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="packName">批次名称</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <input nz-input [(ngModel)]="searchOptions.packName" name="packName" placeholder="请输入完整的批次名称" id="packName" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="packName">渠道号</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <input nz-input [(ngModel)]="searchOptions.channelNumber" name="channelNumber" placeholder="请输入完整的渠道号" id="channelNumber" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="phone">手机号码</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <input nz-input [(ngModel)]="searchOptions.phone" name="phone" placeholder="请输入完整的手机号码" id="phone" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="moResult">上行情况</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <nz-select [(ngModel)]="searchOptions.moResults.moResult" name="moResult" [nzShowSearch]="true">
+              <nz-option *ngFor="let result of searchOptions.moResults.list; let idx = index" [nzLabel]="result.label" [nzValue]="result.value"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="openId">发送账号</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <input nz-input [(ngModel)]="searchOptions.account" name="phone" placeholder="请输入完整的发送账号" id="account" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="signatureType">签名类型</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <nz-select [(ngModel)]="searchOptions.signatureTypes.signatureType" name="signatureType">
+              <nz-option
+                *ngFor="let result of searchOptions.signatureTypes.list; let idx = index"
+                [nzLabel]="result.label"
+                [nzValue]="result.value"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="signature">签名内容</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <input nz-input [(ngModel)]="searchOptions.signature" name="signature" placeholder="请输入完整的签名内容" id="signature" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="signatureType">重发情况</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <nz-select [(ngModel)]="searchOptions.hasResends.hasResend" name="hasResend">
+              <nz-option *ngFor="let type of searchOptions.hasResends.list; let idx = index" [nzLabel]="type.label" [nzValue]="type.value"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="customerCode">客户编码</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <input nz-input [(ngModel)]="searchOptions.customerCode" name="customerCode" placeholder="请输入完整的客户编码" id="customerCode" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="bizTypeCatId">业务分类</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <nz-select [(ngModel)]="searchOptions.bizCategories.bizTypeCatId" name="bizTypeCatId" [nzShowSearch]="true">
+              <nz-option *ngFor="let item of searchOptions.bizCategories.list; let idx = index" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="6" nzFor="bizType">业务模板</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <nz-select [(ngModel)]="searchOptions.bizTypes.bizType" name="bizType" [nzShowSearch]="true">
+              <nz-option *ngFor="let item of searchOptions.bizTypes.list; let idx = index" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div
+        nz-col
+        [nzSpan]="expandForm ? 24 : 8"
+        [class.text-right]="expandForm"
+        class="search-btns"
+        [ngStyle]="{
+          'justify-content': expandForm ? 'flex-end' : 'flex-start'
+        }"
+      >
+        <icc-button [btnType]="'default'" (btnClick)="getTableList()">
+          <span>查询</span>
+        </icc-button>
+        <icc-button [btnType]="'hollow'" (btnClick)="resetTableList()">
+          <span>重置</span>
+        </icc-button>
+        <a class="expand-box" (click)="expandForm = !expandForm">
+          {{ expandForm ? "收起" : "展开" }}
+          <i nz-icon [nzType]="expandForm ? 'caret-up' : 'caret-down'"></i>
+        </a>
+      </div>
+    </div>
+  </form>
+
+  <icc-button [btnType]="'default'" (btnClick)="export()" acl [acl-ability]="'sendDetail.sms.' + appTypeKey + '.export'">
+    <img src="./assets/images/btnIcon/btn_export_white.png" alt="" />
+    <span>全部导出</span>
+  </icc-button>
+
+  <icc-button *ngIf="queryParams.isDetail" [btnType]="'default'" (btnClick)="resend()" acl [acl-ability]="'sendRecord.resend'">
+    <i style="font-size: 16px; transform: translateY(1px)" nz-icon nzType="redo" nzTheme="outline"></i>
+    <span>失败重发</span>
+  </icc-button>
+
+  <div *ngIf="queryParams.isDetail" class="my-md">
+    <nz-alert [nzType]="'info'" [nzShowIcon]="true" [nzMessage]="message">
+      <ng-template #message>
+        接收量
+        <strong class="text-primary">{{ queryParams.sentCount }}</strong>
+        &nbsp;&nbsp; 过滤量
+        <strong class="text-primary">{{ queryParams.invalidTickets }}</strong>
+        &nbsp;&nbsp; 提交量
+        <strong class="text-primary">{{ queryParams.validTickets }}</strong>
+        &nbsp;&nbsp; 提交失败量
+        <strong class="text-primary">{{ queryParams.validTicketsFail }}</strong>
+        &nbsp;&nbsp; 成功量
+        <strong class="text-primary">{{ queryParams.successCount }}</strong>
+        &nbsp;&nbsp; 失败量
+        <strong class="text-primary">{{ queryParams.failCount }}</strong>
+        &nbsp;&nbsp; 未知量
+        <strong class="text-primary">{{ queryParams.unknownCount }}</strong>
+        &nbsp;&nbsp; 上行量
+        <strong class="text-primary">{{ queryParams.moCount }}</strong>
+      </ng-template>
+    </nz-alert>
+  </div>
+  <div class="my-md">
+    <st
+      [page]="{}"
+      #st
+      [widthMode]="{ type: 'strict' }"
+      [scroll]="{ x: '1400px' }"
+      [data]="url"
+      (change)="stChange($event)"
+      [columns]="columns"
+      [noResult]="noResultRef"
+      [req]="req"
+      [res]="res"
+    >
+      <ng-template #noResultRef>
+        <div class="st-empty-box">
+          <img src="./assets/images/nothing/search.png" alt="" />
+          <p class="empty-text">抱歉，查询无此数据</p>
+        </div>
+      </ng-template>
+
+      <ng-template st-row="tpl-batchName" let-item let-index="index">
+        <icc-table-text [text]="item.batchName" [width]="218"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-firstCategoryName" let-item let-index="index">
+        <icc-table-text [text]="item.firstCategoryName || '-'" [width]="85"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-secondCategoryName" let-item let-index="index">
+        <icc-table-text [text]="item.secondCategoryName || '-'" [width]="85"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-bizTypeName" let-item let-index="index">
+        <icc-table-text [text]="item.bizTypeName" [width]="100"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-customerCode" let-item let-index="index">
+        <icc-table-text [text]="item.customerCode" [width]="80"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-userName" let-item let-index="index">
+        <icc-table-text [text]="item.userName" [width]="80"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-strategy" let-item let-index="index">
+        <icc-table-text
+          *ngIf="item.sendStrategyDTO?.name"
+          [color]="'#1890ff'"
+          [text]="item.sendStrategyDTO.name"
+          (textclick)="previewStrategyDetail(item)"
+          [width]="118"
+        ></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-aimJobName" let-item let-index="index">
+        <icc-table-text [text]="item.aimJobName" [width]="120"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-aimTplName" let-item let-index="index">
+        <icc-table-text [color]="'#1890ff'" [text]="item.aimTplName" (textclick)="templateView(item)" [width]="200"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-account" let-item let-index="index">
+        <icc-table-text [text]="item.account" [width]="120"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-matchKeyWord" let-item let-index="index">
+        <icc-table-text [text]="item.matchKeyWord" [width]="120"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-signature" let-item let-index="index">
+        <icc-table-text [text]="item.signature" [width]="120"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-content" let-item let-index="index">
+        <icc-table-text [text]="item.content" [color]="'#1890ff'" [width]="200" (click)="showContent(item)"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-bizFormStr" let-item let-index="index">
+        <icc-table-text [text]="item.bizFormStr" [width]="140"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-submitOriginResultStr" let-item let-index="index">
+        <icc-table-text [text]="item.submitOriginResultStr" [width]="100"></icc-table-text>
+      </ng-template>
+
+      <ng-template st-row="tpl-userGroups" let-item let-index="index">
+        <icc-multi-line-cell [list]="item.userGroups" [lines]="2"></icc-multi-line-cell>
+      </ng-template>
+
+      <!-- start  状态报告描述模块 -->
+      <ng-template st-row="tpl-stateReportDescription" let-item let-index="index">
+        <div [nzTooltipTitle]="item.stateReportDescription" nzTooltipPlacement="top" nz-tooltip>
+          <ng-container *ngIf="item.result != 1">
+            <a class="one-line" (click)="showSolution(item)" nz-button nzType="link">
+              {{ item.stateReportDescription }}
+            </a>
+          </ng-container>
+          <ng-container *ngIf="item.result === 1">
+            <icc-table-text [text]="item.stateReportDescription" [width]="108">
+              {{ item.stateReportDescription }}
+            </icc-table-text>
+          </ng-container>
+        </div>
+      </ng-template>
+      <!-- end  状态报告描述模块-->
+    </st>
+  </div>
+</nz-card>
+
+<nz-modal
+  style="width: calc(100% +16px); margin-left: -8px"
+  [(nzVisible)]="isOpenContentDetail"
+  nzTitle="发送内容"
+  nzWidth="800px"
+  (nzOnCancel)="_handleClose()"
+  [nzFooter]="null"
+>
+  <ng-container *nzModalContent>
+    <nz-table #smallTable [nzData]="currentTemplate" [nzLoading]="contentLoading" style="margin: 0">
+      <thead>
+        <tr style="background: #f3f4fa">
+          <th>发送内容</th>
+          <th style="min-width: 100px">状态报告</th>
+          <th style="min-width: 100px">完成时间</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of smallTable.data">
+          <td class="break-all">{{ data.content }}</td>
+          <td>{{ data.sendResult }}</td>
+          <td>{{ data.doneTime }}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </ng-container>
+</nz-modal>
+
+<!-- 发送策略详情 -->
+<nz-modal [(nzVisible)]="isOpenSendStrategy" nzTitle="策略详情" (nzOnCancel)="closeStrageModal()" [nzFooter]="null" nzWidth="680px">
+  <form nz-form #f="ngForm" se-container size="compact" gutter="24" style="display: block" *nzModalContent>
+    <div class="item">
+      <label class="item-name">策略名称：</label>
+      <div class="item-value">
+        <span>{{ strategyDetail.name }}</span>
+      </div>
+    </div>
+    <div class="item">
+      <label class="item-name">优先级：</label>
+      <div class="item-value">
+        <span class="color-green">{{ strategyDetail.priority }}</span>
+      </div>
+    </div>
+    <div class="item" style="margin-bottom: 0">
+      <label class="item-name">发送方式：</label>
+      <div class="item-value">
+        <p *ngFor="let send of strategySend" [hidden]="strategyDetail.sendMethod !== send.type">
+          {{ send.name }}
+        </p>
+      </div>
+    </div>
+    <div class="item" *ngIf="strategyDetail.msgTypeList && strategyDetail.msgTypeList.length">
+      <label class="item-name"></label>
+      <div class="item-value">
+        <ng-container *ngFor="let msgType of strategyDetail.msgTypeList; let i = index">
+          <span
+            class="type-span"
+            [ngClass]="{
+              'msg-arrow': strategyDetail.sendMethod == strategySend[1].type
+            }"
+          >
+            <icc-msg-icon [msgType]="msgType.type" class="span-icon"></icc-msg-icon>
+            {{ msgType.name }}
+          </span>
+          <span *ngIf="strategyDetail.sendMethod == strategySend[0].type && i < strategyDetail.msgTypeList.length - 1" class="span-char">&</span>
+        </ng-container>
+      </div>
+    </div>
+    <div class="item" *ngIf="strategyDetail.isDefault">
+      <label class="item-name">默认策略：</label>
+      <div class="item-value">
+        <label nz-checkbox [ngModelOptions]="{ standalone: true }" [(ngModel)]="strategyDetail.isDefault" disabled>是</label>
+      </div>
+    </div>
+    <div class="item" *ngIf="!strategyDetail.isDefault">
+      <label class="item-name">执行条件：</label>
+      <div class="item-value" style="width: 75%" *ngIf="strategyDetail.conditions">
+        <app-condition [conditions]="strategyDetail.conditions" [mode]="'view'"></app-condition>
+      </div>
+    </div>
+    <div class="item" *ngIf="!strategyDetail.isDefault && strategyDetail.conditions && strategyDetail.conditions.length > 1">
+      <label class="item-name color-green">逻辑关系：</label>
+      <div class="item-value">
+        <label nz-radio [ngModel]="true" [ngModelOptions]="{ standalone: true }">
+          {{ relationTypes[strategyDetail.operateType] }}
+        </label>
+      </div>
+    </div>
+  </form>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isOpenExport" nzTitle="提示" (nzOnCancel)="closeExport()" [nzFooter]="modalFooter">
+  <ng-container *nzModalContent>
+    <p>
+      <icc-image src="./assets/images/send/export-icon.gif" style="vertical-align: middle"></icc-image>
+      <label style="margin-left: 10px">数据正在导出中。。。</label>
+    </p>
+    <p style="color: #9ea8c8">
+      您可以直接进入
+      <a (click)="goExport()">【导入/导出管理】</a>
+      查看操作结果。
+    </p>
+  </ng-container>
+  <ng-template #modalFooter>
+    <icc-button [btnType]="'default'" (btnClick)="closeExport()">
+      <span>知道了</span>
+    </icc-button>
+  </ng-template>
+</nz-modal>
+
+<!-- **************** start 状态报告描述模块  ************************** -->
+<nz-modal [(nzVisible)]="IsShowSolution" nzTitle="解决方案" (nzOnCancel)="closeShowSolution()" [nzFooter]="modalFooter2">
+  <p *nzModalContent>{{ solution }}</p>
+  <ng-template #modalFooter2>
+    <icc-button [btnType]="'default'" (btnClick)="closeShowSolution()">
+      <span>知道了</span>
+    </icc-button>
+  </ng-template>
+</nz-modal>
+<!--  **************** end  状态报告描述模块  ************************** -->
+
+<nz-modal [(nzVisible)]="isTemplateView" [nzWidth]="0" [nzFooter]="null" nzClosable="false" nzMaskClosable="true" nzKeyboard="true" (nzOnCancel)="onCancel()">
+  <ng-container *nzModalContent>
+    <div class="ant-modal-mask mask-size" (click)="onCancel()">
+      <icc-template-aim-view [resolveSuccess]="true" [tplId]="tplId"></icc-template-aim-view>
+    </div>
+  </ng-container>
+</nz-modal>

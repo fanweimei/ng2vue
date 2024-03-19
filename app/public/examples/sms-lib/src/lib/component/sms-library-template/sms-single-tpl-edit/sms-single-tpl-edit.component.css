@@ -1,0 +1,47 @@
+:host .add-btn {
+	margin: 0 10px 10px 0;
+	padding: 0 15px;
+	border: 1px dashed #d9d9d9;
+	border-radius: 4px;
+	width: 114px;
+	height: 34px;
+	background: #fff;
+	cursor: pointer;
+	line-height: 34px;
+	transition: all .5s;
+}
+:host .add-btn .add {
+	font-size: 16px;
+}
+.add-btn:hover {
+	border: 1px dashed #37ba9d;
+	background: #fff;
+	color: #37ba9d;
+}
+.signature-wrapper {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	margin-bottom: 5px;
+	width: max-content;
+	font-weight: bold;
+}
+.sms-sign-tip {
+	padding: 0 8px;
+	border-radius: 2px;
+	background-color: #fbf3cd;
+	font-weight: 500;
+}
+.icon-wenhao-cls {
+	margin-right: 6px;
+	font-weight: normal;
+}
+.error-tip {
+	position: relative;
+	top: -18px;
+	color: rgb(255, 77, 79);
+}
+.var-box {
+	margin: -15px auto 15px auto;
+	width: 75%;
+}

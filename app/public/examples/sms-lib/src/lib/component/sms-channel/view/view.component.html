@@ -1,0 +1,108 @@
+<div class="modal-header modal-header-update">
+  <div class="modal-title title" *ngIf="record.id > 0">查看详情</div>
+</div>
+<nz-card [nzBordered]="false" class="modal-body model-content-scroll" style="padding-top: 0px">
+  <form nz-form se-container="2" labelWidth="192" style="margin: 0">
+    <p class="form-section-title" col="1">基础信息</p>
+    <se label="渠道商名称" col="2" class="se-item">
+      <span>{{ channel.providerName }}</span>
+    </se>
+    <se label="渠道名称（通道名称）" col="2">
+      <span>{{ channel.name }}</span>
+    </se>
+    <se label="渠道号（通道号）" col="2">
+      <span>{{ channel.channelNum }}</span>
+    </se>
+    <se label="所属运营商" col="2">
+      <span>{{ channel.carrier }}</span>
+    </se>
+    <se label="所属地区" col="2">
+      <div>
+        <span>{{ channel.parentRegion }}</span>
+        -
+        <span span>{{ channel.regionName }}</span>
+      </div>
+    </se>
+    <se label="运营商IP地址" col="2">
+      <span>{{ channel.hostname }}</span>
+    </se>
+    <se label="运营商端口" col="2">
+      <span>{{ channel.port }}</span>
+    </se>
+    <se label="可发送信息类型" col="2">
+      <span>{{ channel.msgTypes }}</span>
+    </se>
+    <se label="是否支持状态报告" col="2">
+      <span>{{ channel.supportStateReport }}</span>
+    </se>
+    <se label="是否支持上行" col="2">
+      <span>{{ channel.supportMo }}</span>
+    </se>
+    <se label="可发送运营商" col="2">
+      <span>{{ channel.carriers }}</span>
+    </se>
+    <se label="运营商企业代码" col="2">
+      <span>{{ channel.corpID }}</span>
+    </se>
+    <se label="业务代码" col="2" style="clear: both">
+      <span>{{ channel.serviceID }}</span>
+    </se>
+    <se label="可发送省份" col="2">
+      <span nz-tooltip [nzTooltipTitle]="channel.showSupportProvinces">
+        {{ channel.showSupportProvinces?.length > 13 ? channel.showSupportProvinces?.slice(0, 13) + "..." : channel.showSupportProvinces }}
+      </span>
+      <!-- BUG: 悬浮文字会因为宽度设置居中而不跟随下面文字 -->
+      <!-- <icc-table-text [text]="channel.showSupportProvinces" [width]="150" style="margin-left: -6px" [textAlign]="'left'"></icc-table-text> -->
+    </se>
+    <p class="form-section-title" col="1">配置信息</p>
+    <se label="渠道账号" col="2">
+      <span>{{ channel.appKey }}</span>
+    </se>
+    <se label="渠道密码" col="2">
+      <span>{{ channel.appSecret }}</span>
+    </se>
+    <se label="渠道标识号" col="2">
+      <span>{{ channel.identity }}</span>
+    </se>
+    <se label="渠道协议" col="2">
+      <span>{{ channel.protocolVersion }}</span>
+    </se>
+    <se label="上行分段等待处理时间上限" col="2">
+      <span>{{ channel.moWaitTime }}</span>
+    </se>
+    <se label="最高发送速度" col="2">
+      <span>{{ channel.speed }}</span>
+    </se>
+    <se label="单条短信的最大字节长度" col="2">
+      <span>{{ channel.maxLength }}</span>
+    </se>
+    <se label="短信切分时所需的字节空间" col="2">
+      <span>{{ channel.extendLength }}</span>
+    </se>
+    <se label="是否支持通道签名" col="2">
+      <span>{{ channel.supportSignature ? "是" : "否" }}</span>
+    </se>
+    <se label="通道签名" col="2">
+      <span>{{ channel.signature ? "【" + channel.signature + "】" : "" }}</span>
+    </se>
+    <se label="是否支持扩展码" col="2">
+      <span>{{ channel.extend ? "是" : "否" }}</span>
+    </se>
+    <se label="可扩展长度" col="2">
+      <span>{{ channel.extendNumLength ? channel.extendNumLength : "" }}</span>
+    </se>
+    <p class="form-section-title" col="1">参数配置</p>
+    <se label="计费用户类型" col="2">
+      <span>{{ channel.userfeetype }}</span>
+    </se>
+    <se label="被计费用户的号码" col="2">
+      <span>{{ channel.billingnumber }}</span>
+    </se>
+    <se label="资费类型" col="2">
+      <span>{{ channel.feetype }}</span>
+    </se>
+    <se label="资费代码" col="2">
+      <span>{{ channel.feecode }}</span>
+    </se>
+  </form>
+</nz-card>

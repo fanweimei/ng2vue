@@ -1,0 +1,126 @@
+:host {
+	::ng-deep {
+		form > div:nth-of-type(1) {
+			margin-left: 0 !important;
+			margin-right: 0 !important;
+		}
+		.control-nzselect {
+			.se__control {
+				overflow: hidden;
+			}
+		}
+
+		.form-section-title {
+			clear: both;
+			padding: 10px 0 15px;
+			border-bottom: 1px solid #eaecf0;
+			width: 100%;
+			font-size: 18px;
+			color: #49536e;
+		}
+
+		.btn-group {
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+			margin-top: 20px;
+			height: 40px;
+		}
+
+		.select-param {
+			width: 100%;
+
+//width: 500px;
+			height: 75px;
+
+			.ant-select-selection {
+				height: 100%;
+			}
+		}
+
+		.ant-row {
+			width: auto;
+		}
+
+		// .select-param .ant-select-selector {
+		// 	height: 100%;
+		// }
+	}
+
+	// nz-select {
+	// 	margin-right: 15px;
+	// 	//width: 350px;
+	// }
+	se > .ant-form-item-label {
+		width: 230px !important;
+	}
+	//input {
+	//  width: 350px;
+	//}
+
+	.bor {
+		border-bottom: 0;
+		min-width: 100%;
+		se {
+			width: 100%;
+		}
+		se > .ant-form-item-label {
+			display: none;
+		}
+	}
+
+	form {
+		padding: 0 15px;
+	}
+
+	// nz-table {
+	// 	width: 100%;
+	// 	.form-inline nz-select {
+	// 		width: 100%;
+	// 	}
+	// }
+
+	.se__horizontal > .se__item {
+		align-items: center;
+	}
+}
+
+.param-config {
+	width: 100%;
+	.top-line {
+		margin-bottom: 14px;
+	}
+	.line {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		padding-right: 10px;
+		label {
+			padding-right: 10px;
+			width: 76px;
+			text-align: right;
+		}
+		nz-select,
+		.cc {
+			margin-right: 20px;
+			width: 45%;
+		}
+	}
+	.rt-config {
+		box-sizing: border-box;
+		padding-left: 8px;
+		padding-top: 8px;
+		border: 1px solid #d9d9d9;
+		border-radius: 4px;
+		width: 100%;
+		min-height: 80px;
+		nz-tag {
+			overflow: hidden;
+			max-width: 99%;
+			text-overflow: ellipsis;
+
+// margin-bottom: 8px;
+			font-size: 14px;
+		}
+	}
+}

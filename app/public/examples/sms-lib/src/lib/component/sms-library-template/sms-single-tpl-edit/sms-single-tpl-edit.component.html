@@ -1,0 +1,90 @@
+<div style="padding: 10px 0 10px" class="icc-page-inner-header">
+  <icc-button [btnType]="'hollow'" (btnClick)="onBack()">
+    <span>返回</span>
+  </icc-button>
+  <span class="title-name">{{ editRecord.name || pageTitle }}</span>
+</div>
+
+<form nz-form nz-row #form="ngForm">
+  <nz-card nz-col nzSpan="24">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="3" nzRequired>模板名称</nz-form-label>
+      <nz-form-control [nzSpan]="15" nzHasFeedback [nzErrorTip]="nameErrorTpl">
+        <input placeholder="请输入模板名称" nz-input name="name" [(ngModel)]="editRecord.name" autocomplete="off"
+          appUniquenessCheck [req]="appUniquenessCheckReq" maxlength="30" [disabled]="pageMode !== 'add'"
+          [ngModelOptions]="nameModelOpts" required />
+        <ng-template #nameErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            <span style="color: #ff4d4f">不能为空，且最多30个字符！</span>
+          </ng-container>
+          <ng-container *ngIf="control.hasError('error')">模板名称唯一性校验异常！</ng-container>
+          <ng-container *ngIf="control.hasError('duplicated')">
+            <span style="color: #ff4d4f">已存在相同的模板名称，请更改！</span>
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <!-- --插入业务变量-- -->
+    <icc-library-variable #libraryVar [show]="pageMode !== 'detail'" [variableBinds]="variableBinds"
+      [varMaxNum]="varMaxNum" [subject]="subject" [hadUsedFn]="hadUsedFn" (insert)="insertVar($event)"
+      (remove)="removeVar($event)"></icc-library-variable>
+
+    <nz-form-item *ngIf="isHasShowUrlPlugin && pageMode !== 'detail'">
+      <nz-form-label [nzSpan]="3">配置短链</nz-form-label>
+      <nz-form-control [nzSpan]="15">
+        <button (click)="OpenShortChainModal()" class="add-btn" nz-button nzType="dashed">
+          <i nz-icon nzType="plus" class="add"></i>
+          <span>插入短链</span>
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+
+    <!-- --模板内容-- -->
+    <nz-form-item>
+      <nz-form-label [nzSpan]="3" nzRequired>模板内容</nz-form-label>
+      <nz-form-control [nzSpan]="15">
+        <div style="margin-bottom: 8px" *ngIf="isHasSalePatchPlugin && pageMode !== 'detail'">
+          <button (click)="openPatchModal()" class="add-btn" nz-button nzType="dashed">
+            <i nz-icon nzType="plus" class="add"></i>
+            <span>插入贴片</span>
+          </button>
+          <icc-patch-popover *ngFor="let item of editRecord?.patchStrategy" [target]="item"
+            style="margin: 0 10px 0 0"></icc-patch-popover>
+        </div>
+
+        <!-- 通过隐藏textarea实现表单对此处的动态校验 -->
+        <textarea hidden="true" rows="6" nz-input [(ngModel)]="editRecord.content" minlength="1" [maxlength]="maxLength"
+          name="content" required></textarea>
+
+        <icc-fake-textarea #textArea style="width: 100%" (valueChange)="handelValueChange($event)"
+          [value]="editRecord.content" [pasterList]="editRecord.patchStrategy" [(cursorOffset)]="editRecord.vIndex"
+          [serverUrl]="editRecord.serverUrl || null" [maxlength]="maxLength" [placeholder]="'请输入内容'" [isTplEdit]="true"
+          [isDisabled]="pageMode === 'detail'"></icc-fake-textarea>
+
+        <span style="display: flex; width: 100%; text-align: left"
+          *ngIf="editRecord.content && editRecord.content.length > 0 && validChars">
+          共&nbsp;
+          <b>
+            {{ editRecord.content.length }}
+          </b>
+          &nbsp;字， 预计分&nbsp;
+          <b style="color: red">{{ calcSegments(editRecord.content) }}</b>
+          &nbsp;段
+        </span>
+
+        <span *ngIf="!editRecord.content?.length && isFireChange && validChars" class="error-tip">短信模板内容不能为空</span>
+        <span *ngIf="!validChars" class="error-tip">{{ "短信模板内容包含了无效字符，'${'和'}'必须成对出现且不能嵌套" }}</span>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-card>
+</form>
+
+<div class="btn-group" *ngIf="pageMode !== 'detail'">
+  <icc-button [btnType]="'default'" (btnClick)="onSave()" [isDisabled]="!form.valid || !validChars">
+    <span>保存</span>
+  </icc-button>
+  <icc-button [btnType]="'hollow'" (btnClick)="onBack()">
+    <span>取消</span>
+  </icc-button>
+</div>

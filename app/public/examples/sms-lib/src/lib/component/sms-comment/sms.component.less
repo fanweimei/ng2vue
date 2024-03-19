@@ -1,0 +1,50 @@
+:host {
+	::ng-deep {
+		.search-btns {
+			display: flex;
+			align-items: center;
+			.expand-box {
+				margin-left: 10px;
+
+				font-size: 12px;
+				color: #49536e;
+				&:hover {
+					color: #37ba9d;
+				}
+			}
+		}
+	}
+}
+
+.textarea {
+	pointer-events: inherit;
+}
+
+.inline-text {
+	display: inline-block;
+	overflow: hidden;
+	width: 268px;
+	height: 21px;
+	cursor: pointer;
+
+	text-overflow: ellipsis;
+	text-align: center;
+	color: #1890ff;
+	white-space: nowrap;
+}
+
+::ng-deep .ant-calendar-time-picker-btn {
+	display: none !important;
+}
+
+.offset-cls {
+	display: inline-block;
+	margin: 0 8px 8px 4px;
+}
+
+.len-tip {
+	line-height: 1.4;
+	text-align: right;
+	font-size: 12px;
+	color: #969595;
+}

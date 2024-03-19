@@ -1,0 +1,96 @@
+:host {
+  ::ng-deep{
+    icc-shorturl-detail .item {
+      .item-name {
+        margin-right: unset !important;
+      }
+    }
+  }
+}
+
+.biz-type-item:not(:last-child) {
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.flag-box {
+  float: left;
+  position: relative;
+  z-index: 11;
+  span {
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+  }
+}
+
+.content {
+  padding: 45px 80px 25px 80px;
+}
+
+.content-item {
+  display: flex;
+  justify-content: flex-start;
+  font-size: 14px;
+  .span-title {
+    display: inline-block;
+    margin-right: 0;
+    min-width: 120px;
+    text-align: right;
+    color: #49536e;
+  }
+  .span-content {
+    display: inline-block;
+    color: #9ea8c8;
+  }
+  .span-box {
+    padding: 10px;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    width: 75%;
+    min-height: 100px;
+    color: #9ea8c8;
+  }
+}
+.content-item:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 78%;
+}
+
+.shorturl-cls {
+  display: block;
+}
+
+.signature-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #9ea8c8;
+}
+.sms-sign-tip {
+  padding: 0 8px;
+  border-radius: 2px;
+  background-color: #fbf3cd;
+  font-weight: 500;
+  .icon-wenhao-cls {
+    margin-right: 6px;
+    font-weight: normal;
+  }
+}
+
+.aim-preview {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 80%;
+}

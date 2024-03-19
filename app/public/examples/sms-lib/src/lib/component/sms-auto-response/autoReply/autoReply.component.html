@@ -1,0 +1,166 @@
+<div class="wrapper">
+  <div class="table-outter-box">
+    <nz-card [nzBordered]="false">
+      <form nz-form [nzLayout]="'inline'" class="search__form">
+        <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+          <div nz-col nzMd="8" nzSm="24">
+            <nz-form-item>
+              <nz-form-label nzSpan="6">关键字类型</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-select [(ngModel)]="searchOptions.keywordType" name="keywordType" [nzPlaceHolder]="'请选择关键字类型'" [nzShowSearch]="true">
+                  <nz-option
+                    *ngFor="let keywordType of searchOptions.keywordTypes.list; let idx = index"
+                    [nzLabel]="keywordType.label"
+                    [nzValue]="keywordType.value"
+                  ></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24">
+            <nz-form-item>
+              <nz-form-label nzSpan="6" nzFor="keyword">关键字</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <input nz-input [(ngModel)]="searchOptions.keyword" name="keyword" placeholder="请输入关键字" maxlength="30" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24" [hidden]="!expandForm">
+            <nz-form-item>
+              <nz-form-label nzSpan="6" nzOffset="2">关联账号</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-select
+                  class="selectC"
+                  nzPlaceHolder="请选择关联账号"
+                  [(ngModel)]="selectAccount"
+                  name="userId"
+                  (nzOnSearch)="searchAccount($event)"
+                  [nzShowSearch]="true"
+                  nzAllowClear
+                >
+                  <nz-option *ngFor="let option of linkedAccounts" [nzValue]="option.id" [nzLabel]="option.account">
+                    {{ option.label }}
+                  </nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+            <nz-form-item>
+              <nz-form-label nzSpan="6" nzFor="state">
+                <span style="display: inline-block; width: 70px">状态</span>
+              </nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-select nzPlaceHolder="请选择状态" [(ngModel)]="searchOptions.state" name="state">
+                  <nz-option [nzValue]="-1" nzLabel="全部"></nz-option>
+                  <nz-option [nzValue]="0" nzLabel="已停用"></nz-option>
+                  <nz-option [nzValue]="1" nzLabel="已启用"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+            <nz-form-item>
+              <nz-form-label nzSpan="6" nzFor="dateRange">更新时间</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-range-picker
+                  extend
+                  name="date"
+                  [(ngModel)]="searchOptions.startDate"
+                  [(ngModelEnd)]="searchOptions.endDate"
+                  [nzFormat]="'yyyy-MM-dd'"
+                  [nzAllowClear]="false"
+                  [ngModelOptions]="{ standalone: true }"
+                  (nzOnOk)="onOkDate()"
+                  (nzOnOpenChange)="onOkDate()"
+                ></nz-range-picker>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div
+            nz-col
+            [nzSpan]="expandForm ? 24 : 8"
+            [class.text-right]="expandForm"
+            [ngStyle]="{
+              'justify-content': expandForm ? 'flex-end' : 'flex-start'
+            }"
+            class="search-btns"
+            style="clear: inherit"
+          >
+            <icc-button [btnType]="'default'" (btnClick)="getTableList()" acl acl-ability="sms.autoReply.list">
+              <span>查询</span>
+            </icc-button>
+            <icc-button [btnType]="'hollow'" (btnClick)="resetTableList()" acl acl-ability="sms.autoReply.list">
+              <span>重置</span>
+            </icc-button>
+            <a class="expand-box" (click)="expandForm = !expandForm">
+              {{ expandForm ? "收起" : "展开" }}
+              <i nz-icon [nzType]="expandForm ? 'caret-up' : 'caret-down'"></i>
+            </a>
+          </div>
+        </div>
+      </form>
+      <div class="btn-groups">
+        <icc-button [btnType]="'default'" (btnClick)="add()" acl acl-ability="sms.autoReply.add">
+          <img src="./assets/images/btnIcon/btn_add_white.png" alt="" />
+          <span>新增</span>
+        </icc-button>
+        <icc-button [btnType]="'danger'" (btnClick)="showModal('', true)" acl acl-ability="sms.autoReply.delete">
+          <img src="./assets/images/btnIcon/btn_remove_white.png" alt="" />
+          <span>批量删除</span>
+        </icc-button>
+      </div>
+
+      <div class="my-md">
+        <nz-alert [nzType]="'info'" [nzShowIcon]="true" [nzMessage]="message">
+          <ng-template #message>
+            已选择
+            <strong class="text-primary">{{ selectedRows.length }}</strong>
+            项
+          </ng-template>
+        </nz-alert>
+      </div>
+      <st
+        [page]="{}"
+        #st
+        [widthMode]="{ type: 'strict' }"
+        [data]="url"
+        [columns]="columns"
+        [res]="res"
+        [req]="req"
+        [scroll]="{ x: '1300px' }"
+        [page]="page"
+        [noResult]="noResultRef"
+        (change)="stChange($event)"
+      >
+        <ng-template #noResultRef>
+          <div class="st-empty-box">
+            <img src="./assets/images/nothing/search.png" alt="" />
+            <p class="empty-text">抱歉，查询无此数据</p>
+          </div>
+        </ng-template>
+        <ng-template st-row="keywordTypeTpl" let-item let-index="index">
+          <span *ngIf="item && item.userId === 0">全局关键字</span>
+          <span *ngIf="item && item.userId !== 0">账号关键字</span>
+        </ng-template>
+        <ng-template st-row="keywordTpl" let-item let-index="index">
+          {{ item.autoMatchExtConfigs[0]?.content }}
+        </ng-template>
+        <ng-template st-row="tpl-userAccount" let-item let-index="index">
+          <icc-table-text [text]="item.userAccount ? item.userAccount : '-'" [width]="160"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="contentTpl" let-item let-index="index">
+          <icc-table-text
+            *ngIf="item.autoRespConfigs[0]?.autoRespParams?.length"
+            [color]="'#1890ff'"
+            [text]="(item.autoRespConfigs[0]?.autoRespParams)[0]?.content"
+            (textclick)="detail(item)"
+            [width]="150"
+          ></icc-table-text>
+        </ng-template>
+      </st>
+    </nz-card>
+  </div>
+</div>

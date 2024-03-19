@@ -1,0 +1,8 @@
+<div nz-row [hidden]="isAutoMath">
+  <msg-form nz-col [nzSpan]="isAim ? 16 : 24" [configs]="options" [disabled]="disabled"></msg-form>
+  <div *ngIf="isAim" nz-col [nzSpan]="8">
+    <!-- 解析成功预览 -->
+    <icc-template-aim-view [resolveSuccess]="true" [tplId]="tplId" [showTip]="'解析成功预览'"></icc-template-aim-view>
+  </div>
+</div>
+<icc-sms-tpl-auto-match #msgtplcomp [tplList]="tplList" *ngIf="isAutoMath"></icc-sms-tpl-auto-match>

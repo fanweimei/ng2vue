@@ -1,0 +1,34 @@
+<!-- HTML contenteditable  by：LHD    -->
+<div class="modal-header modal-header-update">
+  <div class="modal-title">收信人录入</div>
+</div>
+<div class="main clearfix">
+  <form nz-form [formGroup]="validateForm">
+    <nz-form-item>
+      <nz-form-control [nzErrorTip]="currErrorTpl">
+        <span style="font-size: 15px;color: #ccc;">多个手机号码以英文逗号隔开</span>
+        <textarea #inputElement formControlName="phoneNumber" rows="5" style="margin: 5px 0;" nz-input></textarea>
+          <ng-template #currErrorTpl let-control>
+            <ng-container *ngIf="control.hasError('required')">
+              请输入手机号码
+            </ng-container>
+            <ng-container *ngIf="control.hasError('validate')">
+              仅允许录入数字及英文逗号分隔符
+            </ng-container>
+            <ng-container *ngIf="control.hasError('length')">
+              仅允许录入1000个以内手机号！
+            </ng-container>
+          </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <span [ngStyle]="{
+      color: numbersLength > 1000 ? 'red' : '',
+      float: 'right'
+      }">当前共{{numbersLength}}/1000个号码</span>
+  </form>
+</div>
+<div class="modal-footer modal-footer-update">
+  <icc-button [btnType]="'hollow'" (btnClick)="close()"><span>取消</span></icc-button>
+  <icc-button [btnType]="'default'" [isDisabled]="!validateForm.valid"  (btnClick)="save(validateForm.value)">
+    <span>确定</span></icc-button>
+</div>

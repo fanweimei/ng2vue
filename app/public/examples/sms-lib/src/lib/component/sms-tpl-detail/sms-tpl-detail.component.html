@@ -1,0 +1,94 @@
+<div *ngFor="let template of data.templates; index as tIndex" [id]="template.htmlId" class="biz-type-item">
+  <!--优先级-->
+  <div class="flag-box">
+    <img src="assets/images/others/flag.png" alt="" />
+    <span>{{ template.priority }}</span>
+  </div>
+  <div class="content">
+    <div class="content-item">
+      <span class="span-title">模板名称：</span>
+      <span class="span-content">{{ template.name }}</span>
+    </div>
+    <ng-container *ngIf="isAimMsg">
+      <div class="content-item">
+        <span class="span-title">短信签名：</span>
+        <span class="span-content">【{{ signature }}】</span>
+      </div>
+      <div class="content-item">
+        <span class="span-title">M消息模板名称：</span>
+        <span class="span-content">{{ template.varMap?.aimTplName || "-" }}</span>
+      </div>
+      <div class="content-item">
+        <span class="span-title">M消息模板ID：</span>
+        <span class="span-content">{{ template.varMap?.aimTplId || "-" }}</span>
+      </div>
+      <div class="content-item">
+        <span class="span-title">M消息链接：</span>
+        <span class="span-content">{{ template.varMap?.aimUrl || "-" }}</span>
+      </div>
+      <div class="content-item">
+        <span class="span-title">M消息模板：</span>
+        <span class="span-content" style="margin-bottom: 15px; width: 100%">
+          <div class="aim-preview">
+            <!-- 解析成功预览 -->
+            <icc-template-aim-view [resolveSuccess]="true" [tplId]="template.varMap?.aimTplId" [showTip]="'解析成功预览'"></icc-template-aim-view>
+            <!-- 解析失败预览 -->
+            <icc-template-aim-view
+              style="margin-left: 50px"
+              [resolveSuccess]="false"
+              [failContent]="template.failContent"
+              [showTip]="'解析失败预览'"
+            ></icc-template-aim-view>
+          </div>
+        </span>
+      </div>
+    </ng-container>
+
+    <div class="content-item">
+      <span class="span-title">{{ isAimMsg ? "短信原文：" : "模板内容：" }}</span>
+      <div class="content-wrapper">
+        <!-- 短信签名 start -->
+        <div class="signature-wrapper" *ngIf="!isAimMsg">短信签名:【{{ signature }}】</div>
+        <div class="sms-sign-tip">
+          <span class="iconfont icon-icon-test wenhao icon-wenhao-cls" style="font-size: 14px"></span>
+          <span style="font-size: 12px">
+            {{
+              isAimMsg
+                ? "M消息解析失败时，终端展示为短信签名+短信原文+M消息链接"
+                : "短信内容默认携带当前登录账号的账号签名下发，实际收信签名以下发结果为准（运营商通道如果存在通道签名，则消息内容携带通道签名，而非账号签名）"
+            }}
+          </span>
+        </div>
+        <icc-fake-textarea
+          style="width: 100%"
+          [isDisabled]="true"
+          [value]="template.content"
+          [pasterList]="template.patchStrategy"
+          [serverUrl]="template.serverUrl"
+        ></icc-fake-textarea>
+      </div>
+    </div>
+
+    <icc-shorturl-detail *ngIf="template.requireShortUrl" [tplDetail]="template" class="shorturl-cls"></icc-shorturl-detail>
+
+    <div class="condition-wrapper" *ngIf="data.useTmplMethod !== '2'">
+      <div class="content-item">
+        <span class="span-title">默认执行：</span>
+        <span class="span-content">
+          {{ template.isDefault === true ? "是" : "否" }}
+        </span>
+      </div>
+      <div class="content-item" *ngIf="template.isDefault === false">
+        <span class="span-title">执行条件：</span>
+        <app-condition style="width: 70%" [conditions]="template.conditions" [mode]="'view'"></app-condition>
+      </div>
+      <div class="content-item" *ngIf="template.isDefault === false && template.conditions.length > 1">
+        <span class="span-title">逻辑关系：</span>
+        <nz-radio-group [nzDisabled]="true" [(ngModel)]="template.operateType" name="operateType">
+          <label nz-radio nzValue="1">“与”关系</label>
+          <label nz-radio nzValue="2">“或”关系</label>
+        </nz-radio-group>
+      </div>
+    </div>
+  </div>
+</div>

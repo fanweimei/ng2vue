@@ -1,0 +1,117 @@
+<div class="icc-upload">
+  <!--文字提示区-->
+  <nz-alert nzType="warning" nzCloseable="false" [nzMessage]="warnMessage" style="margin: 0 -25px 20px -25px">
+    <ng-template #warnMessage>
+      <ng-content></ng-content>
+      <span class="warning-text">文件不可以超过100M，为确保导入文件格式的正确性，请</span>
+      <a [href]="exampleUrl" target="_blank">下载导入模板</a>
+    </ng-template>
+  </nz-alert>
+
+  <div class="row-item">
+    <label class="item-name">文件类型：</label>
+    <nz-radio-group [(ngModel)]="fileTypeSelection.fileType" (ngModelChange)="changeFileType($event)">
+      <label nz-radio *ngFor="let item of fileTypeSelection.fileList" [nzValue]="item.index" class="radio-item">
+        {{ item.name }}
+      </label>
+    </nz-radio-group>
+  </div>
+
+  <div class="row-item" *ngIf="fileTypeSelection.fileType === 3">
+    <label class="item-name">分隔符：</label>
+    <nz-radio-group [(ngModel)]="separatorSelection.value">
+      <label nz-radio *ngFor="let item of separatorSelection.list" [nzValue]="item.index" class="radio-item">
+        {{ item.name }}
+      </label>
+    </nz-radio-group>
+  </div>
+
+  <!--附件上传区-->
+  <div class="upload-box">
+    <nz-input-group nzSize="large" [nzAddOnAfter]="suffixText">
+      <input type="text" nz-input class="show-input" [ngModel]="currentFileName" disabled />
+    </nz-input-group>
+    <ng-template #suffixText>
+      <nz-upload
+        [nzAccept]="accept"
+        [nzAction]="action"
+        [nzBeforeUpload]="$any(beforeUpload)"
+        [nzCustomRequest]="$any(customRequest)"
+        [nzDisabled]="disabled"
+        [nzSize]="size"
+        [nzFileType]="fileType"
+        [nzFilter]="filter"
+        [nzShowUploadList]="false"
+        [nzWithCredentials]="withCredentials"
+        (nzChange)="change($event)"
+      >
+        选择文件
+      </nz-upload>
+    </ng-template>
+    <p class="limit-size">文件不能超过{{ (size / 1024 / 1024).toFixed(0) }}M</p>
+    <ul *ngIf="fileList.length" class="file-list">
+      <li *ngFor="let file of fileList; let i = index" class="file-item">
+        <label class="left">
+          <i *ngIf="fileStatusObj['0'] === file.status" nz-icon nzType="loading" nzTheme="outline"></i>
+          <i *ngIf="fileStatusObj['1'] === file.status" nz-icon nzType="file-excel" nzTheme="outline"></i>
+          <i *ngIf="fileStatusObj['2'] === file.status" nz-icon nzType="file-excel" nzTheme="outline" style="color: red"></i>
+          <span
+            [ngStyle]="{
+              color: fileStatusObj['2'] === file.status ? 'red' : '#49536e'
+            }"
+          >
+            {{ file.name }}
+          </span>
+        </label>
+        <img class="right" *ngIf="hasDeleteIcon" (click)="removeFile(i)" src="./assets/images/btnIcon/delete_red.png" alt="" />
+      </li>
+    </ul>
+  </div>
+  <!--加载进度区-->
+  <div class="progress-box" *ngIf="hasProgress">
+    <p>
+      <span class="float-left">正在导入</span>
+      <span class="float-right">{{ percent }}%</span>
+    </p>
+    <nz-progress [nzShowInfo]="false" [nzStatus]="$any(status)" [nzPercent]="percent"></nz-progress>
+  </div>
+  <!--附件统计区-->
+  <div *ngIf="fileList.length && !hasProgress && showReason">
+    <section>
+      <div class="notification-wrapper total-box">
+        <div class="title">
+          <img *ngIf="fileStatusObj['1'] === fileList[0].status" src="./assets/images/layout/success.png" alt="" />
+          <img *ngIf="fileStatusObj['2'] === fileList[0].status" src="./assets/images/layout/error.png" alt="" />
+          <span *ngIf="fileStatusObj['1'] === fileList[0].status" class="tip-text">导入成功</span>
+          <span *ngIf="fileStatusObj['2'] === fileList[0].status" class="tip-text">导入失败</span>
+        </div>
+        <div class="content">
+          <span *ngIf="errorMsg">{{ errorMsg }}</span>
+          <span *ngIf="!errorMsg && fileStatusObj['1'] === fileList[0].status && totalCount == successCount">
+            共导入{{ totalCount }}条记录！全部数据项符合规范！
+          </span>
+          <span *ngIf="!errorMsg && fileStatusObj['1'] === fileList[0].status && totalCount != successCount">
+            共导入{{ totalCount }}条记录！{{ successCount }}条记录符合规范！部分数据项不符合规范！修改后请重新导入！
+          </span>
+          <span *ngIf="!errorMsg && fileStatusObj['2'] === fileList[0].status">
+            共导入{{ totalCount }}条记录！{{ successCount }}条记录符合规范！部分数据项不符合规范！修改后请重新导入！
+          </span>
+          <a *ngIf="!errorMsg && logUrl" [href]="logUrl">下载查看原因</a>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div *ngIf="!fileList.length && !hasProgress && errorMsg">
+    <section>
+      <div class="notification-wrapper total-box">
+        <div class="title">
+          <img src="./assets/images/layout/error.png" alt="" />
+          <span class="tip-text">导入失败</span>
+        </div>
+        <div class="content">
+          <span *ngIf="errorMsg">{{ errorMsg }}</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

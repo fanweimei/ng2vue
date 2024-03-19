@@ -1,0 +1,97 @@
+<div class="wrapper">
+  <div class="table-outter-box">
+    <nz-card [nzBordered]="false">
+      <form nz-form [nzLayout]="'inline'" class="search__form">
+        <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+          <div nz-col nzMd="8" nzSm="24">
+            <nz-form-item>
+              <nz-form-label nzFor="preChannelName">切换前渠道名称</nz-form-label>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="searchOptions.preChannelName" name="preChannelName"
+                  placeholder="请输入切换前渠道名称" id="preChannelName" maxlength="50" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24">
+            <nz-form-item>
+              <nz-form-label nzFor="afterChannelName">切换后渠道名称</nz-form-label>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="searchOptions.afterChannelName" name="afterChannelName"
+                  placeholder="请输入切换后渠道名称" id="afterChannelName" maxlength="50" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+            <nz-form-item>
+              <nz-form-label nzFor="preChannelNum">切换前渠道号</nz-form-label>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="searchOptions.preChannelNum" name="preChannelNum" placeholder="请输入切换前渠道号"
+                  id="preChannelNum" maxlength="50" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+            <nz-form-item>
+              <nz-form-label nzFor="afterChannelNum" style="width: 120px">切换后渠道号</nz-form-label>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="searchOptions.afterChannelNum" name="afterChannelNum"
+                  placeholder="请输入切换后渠道号" id="afterChannelNum" maxlength="50" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+            <nz-form-item>
+              <nz-form-label style="width: 120px">切换类型</nz-form-label>
+              <nz-form-control>
+                <nz-select [(ngModel)]="searchOptions.switchReason.select" name="switchReason"
+                  [nzPlaceHolder]="'请选择切换类型'" [nzShowSearch]="true">
+                  <nz-option *ngFor="let reason of searchOptions.switchReason.list; let idx = index"
+                    [nzLabel]="reason.label" [nzValue]="reason.value"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col [nzSpan]="expandForm ? 24 : 8" [class.text-right]="expandForm">
+            <icc-button [btnType]="'default'" (btnClick)="getTableList()">
+              <span>查询</span>
+            </icc-button>
+            <icc-button [btnType]="'hollow'" (btnClick)="resetTableList()">
+              <span>重置</span>
+            </icc-button>
+            <a class="expand-box" (click)="expandForm = !expandForm">
+              {{ expandForm ? "收起" : "展开" }}
+              <i nz-icon [nzType]="expandForm ? 'caret-up' : 'caret-down'"></i>
+            </a>
+          </div>
+        </div>
+      </form>
+
+      <st [page]="{}" #st [widthMode]="{ type: 'strict' }" [scroll]="{ x: '1400px' }" [data]="url" [columns]="columns"
+        [res]="res" [req]="req" [page]="page" [noResult]="noResultRef">
+        <ng-template #noResultRef>
+          <div class="st-empty-box">
+            <img src="./assets/images/nothing/search.png" alt="" />
+            <p class="empty-text">抱歉，查询无此数据</p>
+          </div>
+        </ng-template>
+        <ng-template st-row="templ-manualSwitchReason" let-item let-index="index">
+          <!-- <span *ngIf="item.manualSwitchReason" nz-tooltip [nzTooltipTitle]="item.manualSwitchReason">{{ item.manualSwitchReason }}</span>
+          <span *ngIf="!item.manualSwitchReason" nz-tooltip [nzTooltipTitle]=" //">//</span> -->
+          <div
+            style="text-overflow: ellipsis; overflow: hidden; width: 168px; height: 21px; word-wrap: none; cursor: pointer"
+            *ngIf="item.manualSwitchReason" nz-tooltip [nzTooltipTitle]="item.manualSwitchReason"
+            nzTooltipPlacement="top">
+            {{ item.manualSwitchReason }}
+          </div>
+          <div
+            style="text-overflow: ellipsis; overflow: hidden; width: 168px; height: 21px; word-wrap: none; cursor: pointer"
+            *ngIf="!item.manualSwitchReason" nz-tooltip [nzTooltipTitle]=" //" nzTooltipPlacement="top">
+            //
+          </div>
+        </ng-template>
+      </st>
+    </nz-card>
+  </div>
+</div>

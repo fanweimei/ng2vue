@@ -1,0 +1,74 @@
+<div class="modal-header modal-header-update">
+  <div class="modal-title">导入</div>
+</div>
+<div class="main">
+  <icc-upload
+    #iccupload
+    [exampleUrl]="exampleUrl"
+    [action]="actionUrl"
+    [filter]="filters"
+    [size]="104857600"
+    [showReason]="showReason"
+    [customRequest]="$any(customRequest)"
+    [percent]="uploadPercent"
+    [status]="uploadStatus"
+    [hasProgress]="hasProgress"
+    [totalCount]="totalSize"
+    [successCount]="succSize"
+    [logUrl]="stzaPath"
+    [errorMsg]="errorMsg"
+    (remove)="fileRemove($event)"
+  ></icc-upload>
+
+  <!--<div nz-row>-->
+  <!--<div nz-col nzSpan="16" nzOffset="4" class="thicker">提示：导入数据前，请确保导入的数据项与模板的数据项一致！</div>-->
+  <!--<div nz-col nzSpan="16" nzOffset="4"><a [href]="examplePath">下载excel模板</a></div>-->
+  <!--</div>-->
+  <!--<div nz-row class="marginTop">-->
+  <!--<div nz-col nzSpan="10" nzOffset="4">-->
+  <!--<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload" [nzShowButton]=true [nzShowUploadList]=false>-->
+  <!--<input [(ngModel)]="fileName" id="fileName" name="fileName" placeholder="请选择文件" class="uploadInput" type="text">-->
+  <!--</nz-upload>-->
+  <!--</div>-->
+  <!--<div nz-col nzSpan="2">-->
+  <!--<nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload" [nzShowButton]=true [nzShowUploadList]=false>-->
+  <!--<button nz-button class="floatLeft">浏览</button>-->
+  <!--</nz-upload>-->
+  <!--</div>-->
+  <!--&lt;!&ndash; <div nz-col nzSpan="4">-->
+  <!--<button nz-button [nzType]="'primary'" [nzLoading]="uploading" (click)="handleUpload()"-->
+  <!--[disabled]="fileList.length == 0">-->
+  <!--{{ uploading ? '上传中' : '文件上传' }}-->
+  <!--</button>-->
+  <!--</div> &ndash;&gt;-->
+  <!--</div>-->
+  <!--<div *ngIf="isShowMessage">-->
+  <!--<div nz-row class="marginTop" *ngIf="allFail">-->
+  <!--<div nz-col nzSpan="16" nzOffset="4" class="danger">上传失败！导入文件格式与模板不符，请下载模板再重新进行导入</div>-->
+  <!--</div>-->
+  <!--<div nz-row class="marginTop" *ngIf="!allFail">-->
+  <!--<div nz-col nzSpan="12" nzOffset="4" class="danger">共{{totalSize}}条记录，{{succSize}}条记录符合规范！部分数据项不符合规范！</div>-->
+  <!--<div nz-col nzSpan="4"><a [href]='stzaPath'>下载查看</a></div>-->
+  <!--&lt;!&ndash; <div nz-col nzSpan="16" nzOffset="4" class="danger">是否上传符合规范数据？</div> &ndash;&gt;-->
+  <!--</div>-->
+  <!--</div>-->
+  <!--<div *ngIf="uploading">-->
+  <!--<span style="color: red;">{{uploadMessage}}</span>-->
+  <!--<nz-progress *ngIf="uploadPercent > 0 ? true : false" nzShowInfo="true" [nzStatus]="hasException"-->
+  <!--[nzPercent]="uploadPercent">-->
+  <!--</nz-progress>-->
+  <!--</div>-->
+
+  <!--</div>-->
+  <div class="modal-footer modal-footer-update">
+    <icc-button [btnType]="'hollow'" (btnClick)="close()">
+      <span>关闭</span>
+    </icc-button>
+    <icc-button [btnType]="'default'" [isDisabled]="!tempItem" (btnClick)="handleUpload()">
+      <span>确定</span>
+    </icc-button>
+    <!--<button nz-button type="button" (click)="close()">取消</button>-->
+    <!--<button nz-button type="submit" nzType="primary" (click)="handleUpload()" [disabled]="fileList.length == 0">-->
+    <!--{{ uploading ? '上传中' : '确定' }}</button>-->
+  </div>
+</div>

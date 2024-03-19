@@ -1,0 +1,121 @@
+<div class="modal-header modal-header-update header-cls">
+  <div class="modal-title title">{{ subject }}</div>
+</div>
+<div class="content">
+  <form nz-form [nzLayout]="'inline'" class="search__form">
+    <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+      <div nz-col nzMd="12" nzSm="24">
+        <nz-form-item>
+          <nz-form-label nzSpan="10" nzFor="linkType">链接类型</nz-form-label>
+          <nz-form-control nzSpan="14">
+            <nz-radio-group [(ngModel)]="searchOptions.linkType" (ngModelChange)="linkTypeChange($event)"
+              name="linkType">
+              <label nz-radio [nzValue]="1">群发链接</label>
+              <label nz-radio [nzValue]="2">个性链接</label>
+            </nz-radio-group>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="12" nzSm="24">
+        <nz-form-item>
+          <nz-form-label nzSpan="10" nzFor="jobName">链接任务名称</nz-form-label>
+          <nz-form-control nzSpan="14">
+            <input nz-input [(ngModel)]="searchOptions.jobName" placeholder="请输入链接任务名称" name="jobName" id="jobName" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="12" nzSm="24" *ngIf="searchOptions.linkType === 1 && expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="10" nzFor="aimUrl">M消息链接</nz-form-label>
+          <nz-form-control nzSpan="14">
+            <input nz-input [(ngModel)]="searchOptions.aimUrl" placeholder="请输入完整的M消息链接" name="aimUrl" id="aimUrl" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- <div nz-col nzMd="8" nzSm="24" *ngIf="searchOptions.linkType === 2 || expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="8" nzFor="generateNum">生成数量</nz-form-label>
+          <nz-form-control nzSpan="16">
+            <input nz-input [(ngModel)]="searchOptions.generateNum" placeholder="请输入生成数量" name="generateNum" id="generateNum" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label style="transform: translateX(-14px)" nzSpan="8" nzFor="unresolvedNum">剩余解析数量</nz-form-label>
+          <nz-form-control nzSpan="16">
+            <input nz-input [(ngModel)]="searchOptions.unresolvedNum" placeholder="请输入剩余解析数量" name="unresolvedNum" id="unresolvedNum" />
+          </nz-form-control>
+        </nz-form-item>
+      </div> -->
+      <div nz-col nzMd="12" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="10" nzFor="creator">创建人</nz-form-label>
+          <nz-form-control nzSpan="14">
+            <input nz-input [(ngModel)]="searchOptions.creator" placeholder="请输入创建人" name="creator" id="creator" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="12" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="10" nzFor="expireTime">到期时间</nz-form-label>
+          <nz-form-control nzSpan="14">
+            <nz-range-picker extend [(ngModel)]="searchOptions.startExpireTime"
+              [(ngModelEnd)]="searchOptions.endExpireTime" nzFormat="yyyy-MM-dd" [ngModelOptions]="{ standalone: true }"
+              [nzAllowClear]="false" [nzShowTime]="false"></nz-range-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+    <div [class.text-right]="expandForm" class="search-btns">
+      <icc-button [btnType]="'default'" (btnClick)="getTableList()">
+        <span>查询</span>
+      </icc-button>
+      <icc-button [btnType]="'hollow'" (btnClick)="resetTableList()">
+        <span>重置</span>
+      </icc-button>
+      <a class="expand-box" (click)="expandForm = !expandForm">
+        {{ expandForm ? "收起" : "展开" }}
+        <i nz-icon [nzType]="expandForm ? 'caret-up' : 'caret-down'"></i>
+      </a>
+    </div>
+  </form>
+  <st [page]="{}" #st [widthMode]="{ type: 'strict' }" [scroll]="{ x: '649px' }" [data]="url" [columns]="columns"
+    [res]="res" [req]="req" [page]="page" [noResult]="noResultRef" (change)="stChange($event)">
+    <ng-template #noResultRef>
+      <div class="st-empty-box">
+        <img src="./assets/images/nothing/search.png" alt="" />
+        <p class="empty-text">抱歉，查询无此数据</p>
+      </div>
+    </ng-template>
+    <ng-template st-row="tpl-jobName" let-item let-index="index">
+      <icc-table-text [text]="item.jobName" [width]="100"></icc-table-text>
+    </ng-template>
+    <ng-template st-row="tpl-aimUrl" let-item let-index="index">
+      <icc-table-text [text]="item.aimUrl ? item.aimUrl : '-'" [width]="100"></icc-table-text>
+    </ng-template>
+    <ng-template st-row="tpl-generateNum" let-item let-index="index">
+      <icc-table-text [text]="item.generateNum" [width]="100"></icc-table-text>
+    </ng-template>
+    <ng-template st-row="tpl-unresolvedNum" let-item let-index="index">
+      <icc-table-text [text]="item.unresolvedNum" [width]="100"></icc-table-text>
+    </ng-template>
+    <ng-template st-row="tpl-creator" let-item let-index="index">
+      <icc-table-text [text]="item.creator" [width]="100"></icc-table-text>
+    </ng-template>
+    <ng-template st-row="multi-sign" let-item let-index="index">
+      <icc-table-text [text]="item.smsSign" [width]="100"></icc-table-text>
+      <!-- 需求变更，从三个短信签名变为一个，修改样式为icc-table-text -->
+      <!-- <icc-multi-line-cell [list]="getSign(item)" [lines]="3"></icc-multi-line-cell> -->
+    </ng-template>
+  </st>
+</div>
+<div class="modal-footer modal-footer-update footer-cls">
+  <icc-button [btnType]="'hollow'" (btnClick)="close()">
+    <span>关闭</span>
+  </icc-button>
+  <icc-button [btnType]="'default'" [isDisabled]="!selectedRows" (btnClick)="save()">
+    <span>保存</span>
+  </icc-button>
+</div>

@@ -1,0 +1,167 @@
+<div class="modal-header modal-header-update">
+  <div class="modal-title">{{ operation }}自动加黑</div>
+</div>
+<div class="main">
+  <form nz-form #f="ngForm" nz-form>
+    <input type="hidden" name="id" [(ngModel)]="autoBlackList.id" />
+    <div nz-row>
+      <div nz-col nzSpan="24">
+        <nz-form-item>
+          <nz-form-label nzRequired nzRequired nzSpan="4" nzOffset="1">关键字</nz-form-label>
+          <nz-form-control nzSpan="18" nzHasFeedback [nzErrorTip]="combineTp2" [nzValidateStatus]="validate">
+            <input
+              nz-input
+              [(ngModel)]="keyword"
+              name="keyword"
+              required
+              minlength="1"
+              maxlength="10"
+              autocomplete="off"
+              placeholder="请输入关键字"
+              (ngModelChange)="throttleFn()"
+              (blur)="onblur($event)"
+            />
+            <ng-template #combineTp2 let-control>
+              <ng-container *ngIf="(control != null && control.hasError('required')) || this.required">不能为空，且最多10个字符</ng-container>
+              <ng-container *ngIf="(control != null && control.hasError('duplicated')) || this.duplicated">系统已存在相同关键字</ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="24">
+        <nz-form-item>
+          <nz-form-label nzRequired nzSpan="4" nzOffset="1">黑名单类型</nz-form-label>
+          <nz-form-control nzSpan="18">
+            <nz-radio-group [(ngModel)]="isRelevance" (ngModelChange)="keywordChange($event)" [ngModelOptions]="{ standalone: true }" [nzDisabled]="isEdit">
+              <label nz-radio nzValue="c">业务模板黑名单</label>
+              <label nz-radio nzValue="a">账号黑名单</label>
+              <label nz-radio nzValue="d">渠道黑名单</label>
+              <label nz-radio nzValue="b">全局黑名单</label>
+            </nz-radio-group>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzSpan="24" *ngIf="isRelevance == 'a'">
+        <nz-form-item>
+          <nz-form-label nzRequired nzSpan="4" nzOffset="1">关联账号</nz-form-label>
+          <nz-form-control nzSpan="18" nzHasFeedback [nzErrorTip]="combineTp1">
+            <nz-select
+              [(ngModel)]="autoBlackList.userId"
+              name="userId"
+              [nzShowSearch]="true"
+              (nzOnSearch)="searchAccount($event)"
+              required
+              [disabled]="isEdit && autoBlackList.userId"
+              nzPlaceHolder="请选择关联账号"
+              (ngModelChange)="userIdChange($event)"
+            >
+              <ng-container *ngFor="let option of linkedAccounts; let idx = index">
+                <nz-option *ngIf="record.id <= 0 && idx < 10" [nzValue]="option.id" [nzLabel]="option.account">
+                  {{ option.label }}
+                </nz-option>
+                <nz-option *ngIf="record.id > 0" [nzValue]="option.id" [nzLabel]="option.account">
+                  {{ option.label }}
+                </nz-option>
+              </ng-container>
+            </nz-select>
+            <ng-template #omittedPlaceHolder let-omittedValues>and {{ omittedValues.length }} 个...</ng-template>
+            <ng-template #combineTp1 let-control>
+              <ng-container *ngIf="control.hasError('required')">该项必选</ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="24" *ngIf="isRelevance == 'c'">
+        <nz-form-item>
+          <nz-form-label nzRequired nzSpan="4" nzOffset="1">响应业务模板</nz-form-label>
+          <nz-form-control nzSpan="18" nzHasFeedback [nzErrorTip]="combineTp1">
+            <nz-select
+              [(ngModel)]="autoBlackList.bizTypeId"
+              name="bizTypeId"
+              [nzShowSearch]="true"
+              (nzOnSearch)="searchBizTypes($event)"
+              required
+              nzPlaceHolder="请选择响应业务模板"
+              [disabled]="isEdit && autoBlackList.bizTypeId"
+              (ngModelChange)="bizTypeIdChange($event)"
+            >
+              <ng-container *ngFor="let option of linkedBizTypes; let idx = index">
+                <nz-option *ngIf="record.id <= 0 && idx < 10" [nzValue]="option.id" [nzLabel]="option.name">
+                  {{ option.label }}
+                </nz-option>
+                <nz-option *ngIf="record.id > 0" [nzValue]="option.id" [nzLabel]="option.name">
+                  {{ option.label }}
+                </nz-option>
+              </ng-container>
+            </nz-select>
+            <ng-template #omittedPlaceHolder let-omittedValues>and {{ omittedValues.length }} 个...</ng-template>
+            <ng-template #combineTp1 let-control>
+              <ng-container *ngIf="control.hasError('required')">该项必选</ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="24" *ngIf="isRelevance == 'd'">
+        <nz-form-item>
+          <nz-form-label nzRequired nzSpan="4" nzOffset="1" nzOffset="1">关联渠道</nz-form-label>
+          <nz-form-control nzSpan="18" nzHasFeedback [nzErrorTip]="combineTp1">
+            <nz-select
+              [(ngModel)]="autoBlackList.channelId"
+              name="channelId"
+              [nzShowSearch]="true"
+              (nzOnSearch)="searchChannel($event)"
+              required
+              nzPlaceHolder="请选择关联渠道"
+              [disabled]="isEdit && autoBlackList.channelId"
+              (ngModelChange)="channelIdChange($event)"
+            >
+              <ng-container *ngFor="let option of linkedChannels; let idx = index">
+                <nz-option *ngIf="record.id <= 0 && idx < 10" [nzValue]="option.id" [nzLabel]="option.name">
+                  {{ option.label }}
+                </nz-option>
+                <nz-option *ngIf="record.id > 0" [nzValue]="option.id" [nzLabel]="option.name">
+                  {{ option.label }}
+                </nz-option>
+              </ng-container>
+            </nz-select>
+            <ng-template #omittedPlaceHolder let-omittedValues>and {{ omittedValues.length }} 个...</ng-template>
+            <ng-template #combineTp1 let-control>
+              <ng-container *ngIf="control.hasError('required')">该项必选</ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzSpan="24">
+        <nz-form-item>
+          <nz-form-label nzSpan="4" nzOffset="1">回复内容</nz-form-label>
+          <nz-form-control nzSpan="18" [nzErrorTip]="combineTp3">
+            <textarea placeholder="请输入回复内容" nz-input [(ngModel)]="content" name="content" rows="5" minlength="1" maxlength="982"></textarea>
+            <ng-template #combineTp3 let-control>
+              <ng-container *ngIf="control.hasError('required')">不能为空，且最多982个字符！</ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer modal-footer-update">
+  <icc-button [btnType]="'hollow'" (btnClick)="close()">
+    <span>关闭</span>
+  </icc-button>
+  <icc-button
+    [btnType]="'default'"
+    [isDisabled]="
+      !(f.valid && isKeyWordNotExist && keyword && keyword.trim()) ||
+      (isRelevance == 'a' && autoBlackList.userId == 0) ||
+      (isRelevance == 'c' && autoBlackList.bizTypeId == 0) ||
+      (isRelevance == 'd' && autoBlackList.channelId == 0)
+    "
+    [isLoading]="saveLoading"
+    (btnClick)="save()"
+  >
+    <span>保存</span>
+  </icc-button>
+</div>

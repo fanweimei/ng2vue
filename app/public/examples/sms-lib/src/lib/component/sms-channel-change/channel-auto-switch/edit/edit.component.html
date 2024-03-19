@@ -1,0 +1,398 @@
+<!-- <icc-back title="" [backUrl]="'/icc-standard/information/sms/channelChange/channelAutoSwitch'"></icc-back> -->
+<icc-back title="" [backUrl]="'/icc-standard/information/sms/channelChange'"></icc-back>
+<nz-card>
+  <nz-card nzTitle="主渠道">
+    <form nz-form #f="ngForm" nz-form>
+      <div nz-row nzType="flex" nzJustify="space-around">
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label nzRequired nzSpan="4" nzOffset="2">渠道名称</nz-form-label>
+            <nz-form-control nzSpan="16">
+              <nz-select
+                [(ngModel)]="channelAutoSwitch.channelId"
+                name="channelId"
+                [nzPlaceHolder]="'请选择'"
+                [nzShowSearch]="true"
+                required
+                (nzOpenChange)="selectMainChannel($event)"
+                (ngModelChange)="mainChannelPageChange($event)"
+                [nzDisabled]="channelId > 0"
+              >
+                <nz-option *ngFor="let channel of mainChannels; let idx = index" [nzLabel]="channel.name" [nzValue]="channel.id"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label nzRequired nzSpan="6">渠道号</nz-form-label>
+            <nz-form-control nzSpan="16">
+              <input nz-input [(ngModel)]="channelAutoSwitch.channelNum" name="channelNum" required disabled />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label nzRequired nzSpan="6">所属运营商</nz-form-label>
+            <nz-form-control nzSpan="16">
+              <input nz-input [(ngModel)]="channelAutoSwitch.carrierName" name="carrierName" required disabled />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label nzRequired nzSpan="6">支持运营商</nz-form-label>
+            <nz-form-control nzSpan="16">
+              <input nz-input [(ngModel)]="channelAutoSwitch.carriers" name="carriers" required disabled />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label nzRequired nzSpan="6">可发送省份</nz-form-label>
+            <nz-form-control nzSpan="16">
+              <textarea nz-input [(ngModel)]="channelAutoSwitch.supportProvincesStr" name="supportProvincesStr" required readonly rows="1"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label nzRequired nzSpan="6">渠道商</nz-form-label>
+            <nz-form-control nzSpan="16">
+              <input nz-input [(ngModel)]="channelAutoSwitch.providerName" name="providerName" required disabled />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col nzSpan="24">
+          <nz-form-item>
+            <nz-form-label nzSpan="3">可扩展长度</nz-form-label>
+            <nz-form-control nzSpan="8">
+              <input nz-input [(ngModel)]="channelAutoSwitch.extendNumLength" name="extendNumLength" required disabled />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </form>
+  </nz-card>
+
+  <nz-card nzTitle="备用渠道">
+    <form nz-form [formGroup]="form" [nzLayout]="'vertical'">
+      <nz-table formArrayName="items" [nzData]="items.value" [nzShowPagination]="false">
+        <thead>
+          <tr>
+            <th nzWidth="20%">渠道名称</th>
+            <th>渠道号</th>
+            <th>渠道商</th>
+            <th>所属运营商</th>
+            <th>支持运营商</th>
+            <th>可发送省份</th>
+            <th>可扩展长度</th>
+            <th nzWidth="160px">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+            <td>
+              <span nz-form-control>
+                <nz-select
+                  style="width: 150px"
+                  formControlName="channelId"
+                  name="channelId"
+                  [nzPlaceHolder]="'请选择'"
+                  [nzShowSearch]="true"
+                  (nzOpenChange)="selectBackupChannel($event, item)"
+                  (ngModelChange)="backupChannelChange($event, item)"
+                  [hidden]="editIndex !== i"
+                >
+                  <nz-option *ngFor="let channel of backupChannels; let idx = index" [nzLabel]="channel.name" [nzValue]="channel.id"></nz-option>
+                </nz-select>
+                <span *ngIf="editIndex !== i" [innerHTML]="showChannelName(item)"></span>
+              </span>
+            </td>
+            <td>
+              <span nz-form-control>
+                <!-- <input nz-input formControlName="channelNum" /> -->
+                <span>{{ $any(item).controls.channelNum.value }}</span>
+              </span>
+            </td>
+            <td>
+              <span nz-form-control>
+                <!-- <input  nz-input formControlName="providerName" /> -->
+                <span>{{ $any(item).controls.providerName.value }}</span>
+              </span>
+            </td>
+            <td>
+              <span nz-form-control>
+                <!-- <input nz-input formControlName="carrierName" /> -->
+                <span>{{ $any(item).controls.carrierName.value }}</span>
+              </span>
+            </td>
+            <td>
+              <span nz-form-control>
+                <!-- <input nz-input formControlName="carriers" /> -->
+                <span>{{ $any(item).controls.carriers.value }}</span>
+              </span>
+            </td>
+            <td>
+              <span nz-form-control>
+                <icc-table-text [text]="$any(item).controls.supportProvincesStr.value" [width]="100" textAlign="left"></icc-table-text>
+              </span>
+            </td>
+            <td>
+              <span nz-form-control>
+                <!-- <input nz-input formControlName="extendNumLength" /> -->
+                <span>{{ $any(item).controls.extendNumLength.value }}</span>
+              </span>
+            </td>
+            <td>
+              <span *ngIf="editIndex !== i">
+                <a (click)="editItem(i, true)">编辑</a>
+                <nz-divider nzType="vertical"></nz-divider>
+                <a nz-popconfirm nzPopconfirmTitle="是否要删除此行？" (nzOnConfirm)="delItem(i)">删除</a>
+              </span>
+              <span *ngIf="editIndex === i">
+                <a (click)="saveItem(i)">保存</a>
+                <nz-divider nzType="vertical"></nz-divider>
+                <a nz-popconfirm nzPopconfirmTitle="是否要取消操作？" (nzOnConfirm)="cancelItem(i)">取消</a>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+      <button *ngIf="editIndex === -1" nz-button [nzType]="'dashed'" (click)="addItem()" nzBlock class="mt-md">
+        <i nz-icon nzType="plus"></i>
+        <p style="display: inline-block">添加</p>
+      </button>
+    </form>
+  </nz-card>
+
+  <nz-card nzTitle="渠道自动切换配置">
+    <form nz-form [formGroup]="configForm" [nzLayout]="'vertical'">
+      <div nz-row nzType="flex" nzJustify="space-around">
+        <div nz-col nzSpan="6">
+          <nz-form-item style="display: flex; flex-direction: row">
+            <nz-form-label nzSpan="16">运营商断连自动切换</nz-form-label>
+            <nz-form-control nzSpan="6">
+              <label nz-checkbox formControlName="disconnectEnabled" name="disconnectEnabled" (ngModelChange)="disconnectEnabledChange()">开启</label>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col nzSpan="18">
+          <div *ngIf="configForm.value.disconnectEnabled">
+            <span>断连时长</span>
+            <nz-form-item class="formItem">
+              <nz-form-control nzHasFeedback [nzErrorTip]="disconnectMinutesCombineTp">
+                <nz-input-number formControlName="disconnectMinutes" name="disconnectMinutes" [nzMin]="1" [nzMax]="60" [nzStep]="1"></nz-input-number>
+                <ng-template #disconnectMinutesCombineTp let-control>
+                  <ng-container *ngIf="control.hasError('required')">仅允许输入1-60之间的整数</ng-container>
+                  <ng-container *ngIf="control.hasError('min') || control.hasError('max') || control.hasError('pattern')">
+                    仅允许输入1-60之间的整数
+                  </ng-container>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+
+            <span>分钟，自动切换至备用渠道。</span>
+
+            <span>恢复时长</span>
+
+            <nz-form-item class="formItem">
+              <nz-form-control nzHasFeedback [nzErrorTip]="recoveryMinutesCombineTp">
+                <nz-input-number formControlName="recoveryMinutes" name="recoveryMinutes" [nzMin]="1" [nzMax]="60" [nzStep]="1"></nz-input-number>
+                <ng-template #recoveryMinutesCombineTp let-control>
+                  <ng-container *ngIf="control.hasError('required')">仅允许输入1-60之间的整数</ng-container>
+                  <ng-container *ngIf="control.hasError('min') || control.hasError('max') || control.hasError('pattern')">
+                    仅允许输入1-60之间的整数
+                  </ng-container>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+
+            <span>分钟，自动切回主渠道。</span>
+          </div>
+        </div>
+
+        <div nz-col nzSpan="6">
+          <nz-form-item style="display: flex; flex-direction: row">
+            <nz-form-label nzSpan="16">识别成功率切换</nz-form-label>
+            <nz-form-control nzSpan="6">
+              <label nz-checkbox formControlName="packSuccessRateEnabled" name="packSuccessRateEnabled" (ngModelChange)="packSuccessRateEnabledChange()">
+                开启
+              </label>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col nzSpan="18">
+          <div *ngIf="configForm.value.packSuccessRateEnabled">
+            <nz-form-item class="formItem">
+              <nz-form-control nzHasFeedback [nzErrorTip]="packWithinMinutesCombineTp">
+                <nz-input-number formControlName="packWithinMinutes" name="packWithinMinutes" [nzMin]="1" [nzMax]="60" [nzStep]="1"></nz-input-number>
+                <ng-template #packWithinMinutesCombineTp let-control>
+                  <ng-container *ngIf="control.hasError('required')">仅允许输入1-60之间的整数</ng-container>
+                  <ng-container *ngIf="control.hasError('min') || control.hasError('max') || control.hasError('pattern')">
+                    仅允许输入1-60之间的整数
+                  </ng-container>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+
+            <span>分钟内，成功率低于</span>
+
+            <nz-form-item class="formItem">
+              <nz-form-control nzHasFeedback [nzErrorTip]="packFailRateUnderCombineTp">
+                <nz-input-number
+                  formControlName="packFailRateUnder"
+                  name="packFailRateUnder"
+                  [nzMin]="0"
+                  [nzMax]="98"
+                  [nzStep]="0.1"
+                  [nzPrecision]="1"
+                ></nz-input-number>
+                <ng-template #packFailRateUnderCombineTp let-control>
+                  <ng-container *ngIf="control.hasError('required')">成功率的填写范围为0~98，支持填写一位小数点</ng-container>
+                  <ng-container *ngIf="control.hasError('min') || control.hasError('max') || control.hasError('pattern')">
+                    成功率的填写范围为0~98，支持填写一位小数点
+                  </ng-container>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+
+            <span>%，且失败条数达到</span>
+
+            <nz-form-item class="formItem">
+              <nz-form-control nzHasFeedback [nzErrorTip]="packFailCountReachedCombineTp">
+                <nz-input-number formControlName="packFailCountReached" name="packFailCountReached" [nzMin]="1" [nzMax]="100000" [nzStep]="1"></nz-input-number>
+                <ng-template #packFailCountReachedCombineTp let-control>
+                  <ng-container *ngIf="control.hasError('required')">仅允许输入1~100000之间的整数</ng-container>
+                  <ng-container *ngIf="control.hasError('min') || control.hasError('max') || control.hasError('pattern')">
+                    仅允许输入1~100000之间的整数
+                  </ng-container>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+
+            <span>条，</span>
+            <span>自动切换至备用渠道。</span>
+          </div>
+        </div>
+
+        <div nz-col nzSpan="6">
+          <nz-form-item style="display: flex; flex-direction: row">
+            <nz-form-label nzSpan="16">识别错误码自动切换</nz-form-label>
+            <nz-form-control nzSpan="6">
+              <label nz-checkbox formControlName="errorCodeEnabled" name="errorCodeEnabled" (ngModelChange)="errorCodeEnabledChange()">开启</label>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col nzSpan="18" *ngIf="!configForm.value.errorCodeEnabled"></div>
+        <div nz-col nzSpan="18" *ngIf="configForm.value.errorCodeEnabled">
+          <nz-table formArrayName="errorItems" [nzData]="errorItems.value" [nzShowPagination]="false">
+            <thead>
+              <tr>
+                <th>错误代码</th>
+                <th>数量</th>
+                <th>时长（分钟）</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of errorItems.controls; let i = index" [formGroupName]="i">
+                <td>
+                  <span *ngIf="editErrorItemIndex !== i && !errorItems.value[i].errorCode">
+                    <input nz-input formControlName="errorCode" maxlength="50" />
+                  </span>
+                  <span *ngIf="editErrorItemIndex !== i && errorItems.value[i].errorCode">
+                    {{ errorItems.value[i].errorCode }}
+                  </span>
+                  <nz-form-item>
+                    <nz-form-control *ngIf="editErrorItemIndex === i" nzHasFeedback [nzErrorTip]="combineTp1">
+                      <input nz-input formControlName="errorCode" maxlength="50" />
+                      <ng-template #combineTp1 let-control>
+                        <ng-container *ngIf="control.hasError('required')">错误代码不能为空</ng-container>
+                      </ng-template>
+                    </nz-form-control>
+                  </nz-form-item>
+                </td>
+                <td>
+                  <span *ngIf="editErrorItemIndex !== i && errorItems.value[i].errorCount">
+                    {{ errorItems.value[i].errorCount }}
+                  </span>
+                  <span *ngIf="editErrorItemIndex !== i && !errorItems.value[i].errorCount"></span>
+                  <nz-form-item>
+                    <nz-form-control *ngIf="editErrorItemIndex === i" nzHasFeedback [nzErrorTip]="combineTp2">
+                      <nz-input-number formControlName="errorCount" name="errorCount" [nzMin]="1" [nzMax]="1000" [nzStep]="1"></nz-input-number>
+                      <ng-template #combineTp2 let-control>
+                        <ng-container *ngIf="control.hasError('required')">仅允许输入1-1000之间的整数</ng-container>
+                        <ng-container *ngIf="control.hasError('min') || control.hasError('max') || control.hasError('pattern')">
+                          仅允许输入1-1000之间的整数
+                        </ng-container>
+                      </ng-template>
+                    </nz-form-control>
+                  </nz-form-item>
+                </td>
+                <td>
+                  <span *ngIf="editErrorItemIndex !== i && errorItems.value[i].durationMinutes">
+                    {{ errorItems.value[i].durationMinutes }}
+                  </span>
+                  <span *ngIf="editErrorItemIndex !== i && !errorItems.value[i].durationMinutes"></span>
+                  <!-- <nz-input-number
+                    formControlName="durationMinutes"
+                    name="durationMinutes"
+                    [nzMin]="1"
+                    [nzMax]="60"
+                    [nzStep]="1"
+                  ></nz-input-number> -->
+                  <nz-form-item>
+                    <nz-form-control *ngIf="editErrorItemIndex === i" nzHasFeedback [nzErrorTip]="combineTp3">
+                      <nz-input-number formControlName="durationMinutes" name="durationMinutes" [nzMin]="1" [nzMax]="60" [nzStep]="1"></nz-input-number>
+                      <ng-template #combineTp3 let-control>
+                        <ng-container *ngIf="control.hasError('required')">仅允许输入1-60之间的整数</ng-container>
+                        <ng-container *ngIf="control.hasError('min') || control.hasError('max') || control.hasError('pattern')">
+                          仅允许输入1-60之间的整数
+                        </ng-container>
+                      </ng-template>
+                    </nz-form-control>
+                  </nz-form-item>
+                </td>
+                <td>
+                  <nz-form-item>
+                    <span *ngIf="editErrorItemIndex !== i">
+                      <a (click)="editErrorItem(i)">编辑</a>
+                      <nz-divider nzType="vertical"></nz-divider>
+                      <a nz-popconfirm nzPopconfirmTitle="是否要删除此行？" (nzOnConfirm)="delErrorItem(i)">删除</a>
+                    </span>
+                    <span *ngIf="editErrorItemIndex === i">
+                      <a (click)="saveErrorItem(i)">保存</a>
+                      <nz-divider nzType="vertical"></nz-divider>
+                      <a nz-popconfirm nzPopconfirmTitle="是否要取消操作？" (nzOnConfirm)="cancelErrorItem(i)">取消</a>
+                    </span>
+                  </nz-form-item>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+          <button *ngIf="editErrorItemIndex === -1" nz-button [nzType]="'dashed'" (click)="addErrorItem()" nzBlock class="mt-md">
+            <i nz-icon nzType="plus"></i>
+            <p style="display: inline-block">添加</p>
+          </button>
+        </div>
+      </div>
+    </form>
+  </nz-card>
+</nz-card>
+<div class="btn-group">
+  <icc-button (btnClick)="save()" [isDisabled]="!f.valid || !form.valid || editIndex !== -1">
+    <span>保存</span>
+  </icc-button>
+  <icc-button [btnType]="'hollow'" (btnClick)="back()">
+    <span>取消</span>
+  </icc-button>
+</div>

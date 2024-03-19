@@ -1,0 +1,76 @@
+<div class="modal-header-update">
+  <div class="modal-title">微信粉丝</div>
+</div>
+
+<div class="modal-row">
+  <nz-spin nzTip="加载中..." [nzSpinning]="loading">
+    <div class="modal-column-1" style="height: 440px">
+      <p class="box-title" style="height: 45px; line-height: 45px">微信粉丝</p>
+      <div class="tree-box" style="margin-top: 0">
+        <nz-tree #wechatFanslist [nzData]="wtags" [nzSelectedKeys]="defaultSelectedTag"
+          [nzExpandedKeys]="defaultExpandedTag" (nzClick)="tagEvent($event)" [nzTreeTemplate]="nzTreeTemplate"
+          nzShowLine="true"></nz-tree>
+        <ng-template #nzTreeTemplate let-node>
+          <span>{{ node.origin.title }}</span>
+        </ng-template>
+      </div>
+    </div>
+  </nz-spin>
+
+  <div class="modal-column-2">
+    <div class="form-box" style="margin-bottom: 0" *ngIf="showFansCheckbox">
+      <sf #wxFans [ui]="ui" mode="search" [button]="null" [schema]="searchWxFansSchema"
+        style="text-align: right; padding: 10px 10px 0"></sf>
+      <icc-button class="btn-search" [btnType]="'default'" (btnClick)="searchWxFansList()">
+        <span>查询</span>
+      </icc-button>
+      <icc-button class="btn-cancel" [btnType]="'hollow'" (btnClick)="resetWxFansList()">
+        <span>重置</span>
+      </icc-button>
+    </div>
+    <st #fanst [data]="wechatFansUrl" [widthMode]="{ type: 'strict' }" [columns]="fansColumns" [res]="wres"
+      [req]="req" ps="5" [noResult]="noResultRef">
+      <ng-template #noResultRef>
+        <div class="st-empty-box" style="min-height: 225px">
+          <img src="./assets/images/nothing/search.png" alt="" />
+          <p class="empty-text">抱歉，查询无此数据</p>
+        </div>
+      </ng-template>
+
+      <ng-template st-row="templ-sex" let-item let-index="index">
+        <span *ngIf="!item || item.sex === '' || item.sex === 0">/</span>
+        <span *ngIf="item && item.sex === 1">先生</span>
+        <span *ngIf="item && item.sex === 2">女士</span>
+      </ng-template>
+      <ng-template st-row="templ-group" let-item let-index="index">
+        <icc-multi-line-cell [list]="item.groups" [lines]="1"></icc-multi-line-cell>
+      </ng-template>
+    </st>
+  </div>
+
+  <div class="modal-column-3">
+    <icc-button [isDisabled]="!_groupLen" [btnType]="'default'" (btnClick)="addAllTags()">
+      <span>{{ showFansCheckbox ? "添加已选" : "添加全部" }}</span>
+    </icc-button>
+  </div>
+
+  <div class="modal-column-4">
+    <p class="box-title">已选收信人</p>
+    <div class="list-box">
+      <ng-container *ngFor="let item of selectAddress">
+        <app-selected *ngIf="!showFansCheckbox" [text]="item.name" [count]="item.len"
+          (delete)="onTagClose2(item)"></app-selected>
+        <app-selected *ngIf="showFansCheckbox" [text]="item.openId" (delete)="onTagClose2(item)"></app-selected>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer modal-footer-update">
+  <icc-button [btnType]="'hollow'" (btnClick)="handleCancel()">
+    <span>取消</span>
+  </icc-button>
+  <icc-button [btnType]="'default'" (btnClick)="handleOk()" [isDisabled]="!okSelect">
+    <span>确定</span>
+  </icc-button>
+</div>

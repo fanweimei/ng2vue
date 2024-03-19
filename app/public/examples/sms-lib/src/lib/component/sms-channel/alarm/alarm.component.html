@@ -1,0 +1,87 @@
+<div class="modal-header modal-header-update">
+  <div class="modal-title">{{ record.name }}预警设置</div>
+</div>
+<div class="main">
+  <form nz-form [formGroup]="form" se-container="1" labelWidth="150" nz-form>
+    <div nz-row>
+      <nz-form-item nz-col nzSpan="20">
+        <nz-form-label nzSpan="4" nzOffset="2">预警阈值</nz-form-label>
+        <nz-form-control nzSpan="16" nzHasFeedback [nzErrorTip]="combineTpl">
+          <nz-input-group [nzSuffix]="warnSuffix1">
+            <input placeholder="请输入" nz-input formControlName="dailyLimitCount" name="dailyLimitCount" maxlength="9" (ngModelChange)="countChange(1)" />
+            <ng-template #combineTpl let-control>
+              <ng-container *ngIf="control.hasError('max')">最大值3亿</ng-container>
+              <ng-container *ngIf="control.hasError('pattern')">请输入整数</ng-container>
+            </ng-template>
+            <ng-template #warnSuffix1>
+              <span
+                [ngStyle]="{
+                  transform: change1 ? 'translateX(-20px)' : 'translateX(0px)'
+                }"
+              >
+                条/日
+              </span>
+            </ng-template>
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item nz-col nzSpan="20">
+        <nz-form-label nzSpan="4" nzOffset="2">预警阈值</nz-form-label>
+        <nz-form-control nzSpan="16" nzHasFeedback [nzErrorTip]="combineTpl2">
+          <nz-input-group [nzSuffix]="warnSuffix2">
+            <input placeholder="请输入" nz-input formControlName="monthlyLimitCount" name="monthlyLimitCount" maxlength="11" (ngModelChange)="countChange(2)" />
+            <ng-template #combineTpl2 let-control>
+              <ng-container *ngIf="control.hasError('max')">最大值100亿</ng-container>
+              <ng-container *ngIf="control.hasError('pattern')">请输入整数</ng-container>
+            </ng-template>
+            <ng-template #warnSuffix2>
+              <span
+                [ngStyle]="{
+                  transform: change2 ? 'translateX(-20px)' : 'translateX(0px)'
+                }"
+              >
+                条/月
+              </span>
+            </ng-template>
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </form>
+  <div nz-row>
+    <form nz-form #f="ngForm" se-container="1" labelWidth="150">
+      <nz-form-item nz-col nzSpan="20">
+        <nz-form-label nzRequired nzSpan="4" nzOffset="2">通知人员</nz-form-label>
+        <nz-form-control nzSpan="16" nzHasFeedback [nzErrorTip]="combineTp13">
+          <nz-select
+            class="selectC"
+            placeholder="请选择"
+            [(ngModel)]="callUserId"
+            name="callUserId"
+            (nzOnSearch)="searchAccount($event)"
+            [nzShowSearch]="true"
+            [nzMaxMultipleCount]="10"
+            [nzMode]="'multiple'"
+            required
+          >
+            <nz-option *ngFor="let option of linkedAccounts" [nzValue]="option.id" [nzLabel]="option.account">
+              {{ option.label }}
+            </nz-option>
+          </nz-select>
+          <ng-template #combineTp13 let-control>
+            <ng-container *ngIf="control.hasError('required')">该项必选</ng-container>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </div>
+</div>
+<div class="modal-footer modal-footer-update">
+  <icc-button [btnType]="'hollow'" (btnClick)="close()">
+    <span>关闭</span>
+  </icc-button>
+  <icc-button [btnType]="'default'" [isDisabled]="!form.valid || !f.valid || flag" [isLoading]="http.loading" (btnClick)="save()">
+    <span>保存</span>
+  </icc-button>
+</div>

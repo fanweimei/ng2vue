@@ -1,0 +1,6 @@
+<button *ngIf="!disabled" (click)="openAimLinkChoose()" class="add-btn" nz-button nzType="dashed">
+  <i nz-icon nzType="plus" class="add"></i>
+  <span>选择M消息链接</span>
+</button>
+<input nz-input readonly [value]="value" [placeholder]="'请选择M消息链接'" style="margin-top: 5px" />
+<div class="url-count" *ngIf="value?.length">{{ "共 " + value?.length + " 字" }}</div>

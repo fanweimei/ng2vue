@@ -1,0 +1,62 @@
+<div class="modal-header modal-header-update">
+  <div class="modal-title">{{ title || (isMo ? "上行内容" : "发送内容") }}</div>
+</div>
+<!-- 下行内容 -->
+<nz-table #smallTable *ngIf="!isMo && !isTpl" [nzData]="listOfData" [nzLoading]="loading" [nzVirtualItemSize]="40" [nzScroll]="{ y: '400px' }">
+  <thead>
+    <tr style="background: #f3f4fa">
+      <th>发送内容</th>
+      <th>状态报告</th>
+      <th>完成时间</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let data of smallTable.data">
+      <td class="td-cls">{{ data.content }}</td>
+      <td class="td-cls">{{ data.sendResult }}</td>
+      <td class="td-cls">{{ data.doneTime }}</td>
+    </tr>
+  </tbody>
+</nz-table>
+<!-- 上行内容 -->
+<div *ngIf="isMo" class="model-content-scroll">{{ moContent }}</div>
+<!-- 模板内容 -->
+<ng-container *ngIf="!isSendAudit && !isAimMsg">
+  {{ tplContent }}
+</ng-container>
+<div class="model-content-scroll content-box" *ngIf="!isSendAudit && isAimMsg">
+  <div class="content-info">
+    <div class="content-item">
+      <span class="span-title">M消息模板名称：</span>
+      <span class="span-content">{{ varMap?.aimTplName || "-" }}</span>
+    </div>
+    <div class="content-item">
+      <span class="span-title">M消息模板ID：</span>
+      <span class="span-content">{{ varMap?.aimTplId || "-" }}</span>
+    </div>
+    <div class="content-item">
+      <span class="span-title">M消息链接：</span>
+      <span class="span-content">{{ varMap?.aimUrl || "-" }}</span>
+    </div>
+    <div class="content-item">
+      <span class="span-title">短信原文：</span>
+      <span class="span-content">{{ tplContent || "-" }}</span>
+    </div>
+  </div>
+  <div class="template-preview">
+    <!-- 解析成功预览 -->
+    <icc-template-aim-view [resolveSuccess]="true" [tplId]="varMap?.aimTplId" [showTip]="'解析成功预览'"></icc-template-aim-view>
+  </div>
+</div>
+<div class="content-task-box" *ngIf="isSendAudit && isAimMsg">
+  <div class="content-task-item">
+    <div class="title">M消息模板内容：</div>
+    <div class="content">
+      <icc-template-aim-view [resolveSuccess]="true" [tplId]="aimTplId" [showTip]="'解析成功预览'"></icc-template-aim-view>
+    </div>
+  </div>
+  <div class="content-task-item item-bottom">
+    <div class="title">短信原文：</div>
+    <div class="content">{{ tplContent || "-" }}</div>
+  </div>
+</div>

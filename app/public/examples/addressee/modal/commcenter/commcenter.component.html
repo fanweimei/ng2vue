@@ -1,0 +1,122 @@
+<div class="modal-header-update">
+  <div class="modal-title">通讯中心</div>
+</div>
+
+<div class="modal-row">
+  <nz-tabset (nzSelectedIndexChange)="customerTabChange($event)" [nzTabBarGutter]="0" class="modal-column-1"
+    [nzSelectedIndex]="curTab">
+    <nz-tab nzTitle="客户通讯录">
+      <nz-spin nzTip="加载中..." [nzSpinning]="loading" style="overflow: auto; height: 455px">
+        <div class="tree-box">
+          <nz-tree #phonelist [nzData]="nodes" nzAsyncData="true" [nzExpandedKeys]="defaultExpandedKeys"
+            [nzSelectedKeys]="defaultSelectedKeys" (nzClick)="nzEvent($event)" nzShowLine="true"></nz-tree>
+        </div>
+      </nz-spin>
+    </nz-tab>
+    <nz-tab nzTitle="员工通讯录">
+      <nz-spin nzTip="加载中..." [nzSpinning]="loading" style="overflow: auto; height: 455px">
+        <div class="tree-box">
+          <nz-tree #employeeTree [nzData]="employeeNodes" nzAsyncData="true" [nzExpandedKeys]="defaultExpandedKeys"
+            [nzSelectedKeys]="defaultSelectedKeys" (nzClick)="employeeEvent($event)" nzShowLine="true"></nz-tree>
+        </div>
+      </nz-spin>
+    </nz-tab>
+  </nz-tabset>
+
+  <div class="modal-column-2">
+    <div class="form-box">
+      <div class="flex-col-center">
+        <sf #sf [ui]="ui" mode="search" [button]="null" [schema]="searchSchema"
+          style="text-align: right; padding: 10px 10px 0"></sf>
+        <span class="question-box">
+          <i nz-icon nzType="question-circle" nzTheme="twotone" [nzTooltipTitle]="wenzi" nz-tooltip></i>
+        </span>
+      </div>
+      <ng-template #wenzi>
+        <div style="font-size: 12px">
+          <b>不去重</b>
+          ：如果一个用户属于多个分组，列表中会展示多条该用户数据，分别属于不同分组。
+          <br />
+          <b>去重</b>
+          ：如果一个用户属于多个分组，列表中只展示一条该用户数据，分组合并展示。
+          <br />
+          (当客户通讯录数据达到200万时，勾选去重查询会影响页面加载和查询速度。)
+        </div>
+      </ng-template>
+      <icc-button class="btn-search" [btnType]="'default'" (btnClick)="searchCustomerList()">
+        <span>查询</span>
+      </icc-button>
+      <icc-button class="btn-cancel" [btnType]="'hollow'" (btnClick)="resetCustomerList()">
+        <span>重置</span>
+      </icc-button>
+    </div>
+    <div class="my-md" style="margin-top: 26px !important">
+      <nz-alert [nzType]="'info'" [nzShowIcon]="true" [nzMessage]="msg">
+        <ng-template #msg>
+          已选择
+          <strong class="text-primary">{{ selectedRows.length }}</strong>
+          项
+        </ng-template>
+      </nz-alert>
+    </div>
+    <div style="padding: 0 10px">
+      <st #st [widthMode]="{ type: 'strict' }" [scroll]="{ x: '730px' }" [data]="customerUrl"
+        [columns]="columns" [res]="res" [req]="req" ps="5" [noResult]="noResultRef" (change)="stChange($event)"
+        style="max-height: 400px; overflow: auto">
+        <ng-template #noResultRef>
+          <div class="st-empty-box" style="min-height: 225px">
+            <img src="./assets/images/nothing/search.png" alt="" />
+            <p class="empty-text">抱歉，查询无此数据</p>
+          </div>
+        </ng-template>
+        <ng-template st-row="templ-group" let-item let-index="index">
+          <icc-multi-line-cell [list]="item.groups" [lines]="2"></icc-multi-line-cell>
+        </ng-template>
+        <ng-template st-row="templ-name" let-item let-index="index">
+          <icc-table-text [text]="item.name" [width]="100"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="templ-regId" let-item let-index="index">
+          <icc-table-text [text]="item.regId" [width]="100"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="templ-alias" let-item let-index="index">
+          <icc-table-text [text]="formatAlias(item, terminalType.apppush)" [width]="100"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="tmpl-apppush" let-item let-index="index">
+          <icc-table-text [text]="formatTerminal(item, terminalType.apppush)" [width]="100"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="tmpl-workwx" let-item let-index="index">
+          <icc-table-text [text]="formatTerminal(item, terminalType.workwx)" [width]="100"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="tmpl-wechat" let-item let-index="index">
+          <icc-table-text [text]="formatTerminal(item, terminalType.wechat)" [width]="100"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="tmpl-email" let-item let-index="index">
+          <icc-table-text [text]="formatEmail(item, terminalType.email)" [width]="100"></icc-table-text>
+        </ng-template>
+      </st>
+    </div>
+  </div>
+  <div class="modal-column-3">
+    <button nz-button (click)="addAllContacts()" [nzLoading]="isRequestCount" class="add-all-btn-cls">添加全部</button>
+    <icc-button [btnType]="'default'" (btnClick)="addSelectedContacts()">
+      <span>添加已选</span>
+    </icc-button>
+  </div>
+  <div class="modal-column-4">
+    <p class="box-title">已选收信人</p>
+    <div class="list-box">
+      <ng-container *ngFor="let item of selectAddress">
+        <app-selected [text]="item.name" [count]="item.len" (delete)="onTagClose2(item)"></app-selected>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer modal-footer-update">
+  <icc-button [btnType]="'hollow'" (btnClick)="handleCancel()">
+    <span>取消</span>
+  </icc-button>
+  <icc-button [btnType]="'default'" (btnClick)="handleOk()" [isDisabled]="!okSelect">
+    <span>确定</span>
+  </icc-button>
+</div>

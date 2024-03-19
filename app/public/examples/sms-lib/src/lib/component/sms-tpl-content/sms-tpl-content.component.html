@@ -1,0 +1,14 @@
+<!-- 窗体头部 -->
+<div class="modal-header modal-header-update">
+  <div class="modal-title">{{name}}</div>
+</div>
+<!-- 窗体内容 -->
+<div class="model-content-scroll">
+  <icc-fake-textarea
+    style="width: 100%"
+    [isDisabled]="true"
+    [value]="content"
+    [pasterList]="patchStrategy"
+    [serverUrl]="serverUrl"
+  ></icc-fake-textarea>
+</div>

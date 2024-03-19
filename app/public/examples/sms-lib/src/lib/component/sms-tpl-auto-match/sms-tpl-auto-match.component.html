@@ -1,0 +1,153 @@
+<div *ngFor="let item of viewList" style="width: 100%">
+  <p style="width: 80%; margin: 5px 0 27px 0; font-size: 16px; font-weight: bold">
+    <span>{{ item.name }}</span>
+    <span>
+      <!-- margin-left: 90px; -->
+      <img
+        src="./assets/images/btnIcon/btn_eye_green.png"
+        alt="查看发送策略"
+        style="margin-left: 10px; transform: translateY(-2px); cursor: pointer"
+        nz-popover
+        [nzPopoverTitle]="titleTemplate"
+        [nzPopoverContent]="contentTemplate"
+        nzPopoverPlacement="topLeft"
+      />
+      <ng-template #titleTemplate>发送策略</ng-template>
+      <ng-template #contentTemplate>
+        <div style="margin-bottom: 10px">
+          <span style="font-weight: bold">默认执行：</span>
+          {{ item.isDefault ? "是" : "否" }}
+        </div>
+        <div *ngIf="!item.isDefault">
+          <div style="margin-bottom: 10px; font-weight: bold">执行条件:</div>
+          <div style="width: 500px">
+            <app-condition [conditions]="item.conditions || []" [mode]="'view'"></app-condition>
+          </div>
+        </div>
+        <div style="margin-top: 10px" *ngIf="item.conditions?.length > 1">
+          <span style="font-weight: bold">逻辑关系：</span>
+          <label nz-radio [ngModel]="true">
+            {{ relationTypes[item.operateType] }}
+          </label>
+        </div>
+      </ng-template>
+    </span>
+  </p>
+  <!-- M 消息 -->
+  <ng-container *ngIf="isAimMsg">
+    <div class="aim-wrapper">
+      <div class="aim-info">
+        <form #form="ngForm" nz-form style="width: 100%">
+          <!-- 短信签名 -->
+          <nz-form-item style="margin-top: 10px; margin-bottom: 0">
+            <nz-form-label [nzSpan]="4">短信签名</nz-form-label>
+            <nz-form-control [nzSpan]="20" style="font-weight: bold">【{{ signature }}】</nz-form-control>
+          </nz-form-item>
+          <!-- M消息模板名称 -->
+          <nz-form-item style="margin-top: 10px; margin-bottom: 0">
+            <nz-form-label [nzSpan]="4">M消息模板名称</nz-form-label>
+            <nz-form-control [nzSpan]="20" style="font-weight: bold">
+              {{ item.varMap?.aimTplName }}
+            </nz-form-control>
+          </nz-form-item>
+          <!-- M消息模板ID -->
+          <nz-form-item style="margin-top: 10px; margin-bottom: 0">
+            <nz-form-label [nzSpan]="4">M消息模板ID</nz-form-label>
+            <nz-form-control [nzSpan]="20" style="font-weight: bold">
+              {{ item.varMap?.aimTplId }}
+            </nz-form-control>
+          </nz-form-item>
+          <!-- M消息链接 -->
+          <nz-form-item style="margin-top: 10px; margin-bottom: 0">
+            <nz-form-label [nzSpan]="4">M消息链接</nz-form-label>
+            <nz-form-control [nzSpan]="20" style="font-weight: bold">
+              {{ item.varMap?.aimUrl }}
+            </nz-form-control>
+          </nz-form-item>
+          <!-- M消息链接 -->
+          <nz-form-item style="margin-top: 10px; margin-bottom: 0">
+            <nz-form-label [nzSpan]="4">短信原文</nz-form-label>
+            <nz-form-control [nzSpan]="20" style="font-weight: bold">
+              <!-- 新增：贴片详情 -->
+              <icc-patch-popover
+                *ngFor="let item of item.patchStrategy"
+                [target]="item"
+                style="margin: 0 10px 10px 0; display: inline-block"
+              ></icc-patch-popover>
+              <div class="sms-sign-tip">
+                <span class="iconfont icon-icon-test wenhao icon-wenhao-cls" style="font-size: 14px; margin-left: 0"></span>
+                <span style="font-size: 12px">M消息解析失败时，终端展示为短信签名+短信原文+M消息链接</span>
+              </div>
+              <icc-fake-textarea
+                style="width: 100%"
+                [isDisabled]="true"
+                [value]="item.content"
+                [pasterList]="item.patchStrategy"
+                [serverUrl]="item.serverUrl"
+              ></icc-fake-textarea>
+              <span class="text-count" *ngIf="item.content">
+                <b>含签名</b>
+                共&nbsp;
+                <b>{{ item.content.length + (signature ? signature.length + 2 : 0) }}</b>
+                &nbsp;字， 预计分&nbsp;
+                <b style="color: red">{{ calcSegments(item.content) }}</b>
+                &nbsp;段
+                <span
+                  *ngIf="item.isSms"
+                  style="font-size: 12px"
+                  class="iconfont icon-wenhao wenhao"
+                  nzTooltipTitle="可能存在【通道签名】，实际字数以下发结果为准"
+                  nzTooltipPlacement="top"
+                  nz-tooltip
+                ></span>
+              </span>
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+      </div>
+      <div class="aim-preview">
+        <!-- 解析成功预览 -->
+        <icc-template-aim-view [resolveSuccess]="true" [tplId]="item.varMap?.aimTplId" [showTip]="'解析成功预览'"></icc-template-aim-view>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- 普通短信 -->
+  <ng-container *ngIf="!isAimMsg">
+    <!-- 新增：贴片详情 -->
+    <icc-patch-popover *ngFor="let item of item.patchStrategy" [target]="item" style="margin: 0 10px 10px 0; display: inline-block"></icc-patch-popover>
+    <div class="signature-wrapper" style="margin-top: 5px">短信签名:【{{ signature }}】</div>
+    <div class="sms-sign-tip">
+      <span class="iconfont icon-icon-test wenhao icon-wenhao-cls" style="font-size: 14px; margin-left: 0"></span>
+      <span style="font-size: 12px">
+        短信内容默认携带当前登录账号的账号签名下发，实际收信签名以下发结果为准（运营商通道如果存在通道签名，则消息内容携带通道签名，而非账号签名）
+      </span>
+    </div>
+    <icc-fake-textarea
+      style="width: 100%"
+      [isDisabled]="true"
+      [value]="item.content"
+      [pasterList]="item.patchStrategy"
+      [serverUrl]="item.serverUrl"
+    ></icc-fake-textarea>
+    <span class="text-count" *ngIf="item.content">
+      <b>含签名</b>
+      共&nbsp;
+      <b>{{ item.content.length + (signature ? signature.length + 2 : 0) }}</b>
+      &nbsp;字， 预计分&nbsp;
+      <b style="color: red">{{ calcSegments(item.content) }}</b>
+      &nbsp;段
+      <span
+        *ngIf="item.isSms"
+        style="font-size: 12px"
+        class="iconfont icon-wenhao wenhao"
+        nzTooltipTitle="可能存在【通道签名】，实际字数以下发结果为准"
+        nzTooltipPlacement="top"
+        nz-tooltip
+      ></span>
+    </span>
+  </ng-container>
+</div>
+
+<!-- 无模板数据 -->
+<div *ngIf="!viewList || !viewList.length" style="text-align: center; color: #a7a7a7; margin-top: 20px">无模板数据</div>

@@ -1,0 +1,159 @@
+<div class="wrapper">
+  <div class="table-outter-box">
+    <nz-card [nzBordered]="false">
+      <form nz-form [nzLayout]="'inline'" class="search__form">
+        <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+          <div nz-col nzMd="8" nzSm="24">
+            <nz-form-item>
+              <nz-form-label nzFor="channelName">渠道名称</nz-form-label>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="searchOptions.channelName" name="channelName" placeholder="请输入渠道名称"
+                  id="channelName" maxlength="50" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24">
+            <nz-form-item>
+              <nz-form-label>所属运营商</nz-form-label>
+              <nz-form-control>
+                <nz-select [(ngModel)]="searchOptions.carrier.select" name="carrier" [nzPlaceHolder]="'请选择所属运营商'"
+                  [nzShowSearch]="true">
+                  <nz-option *ngFor="let carrier of searchOptions.carrier.list; let idx = index"
+                    [nzLabel]="carrier.label" [nzValue]="carrier.value"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+            <nz-form-item>
+              <nz-form-label nzFor="channelNum">渠道号</nz-form-label>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="searchOptions.channelNum" name="channelNum" placeholder="请输入渠道号"
+                  id="channelNum" maxlength="50" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+            <nz-form-item>
+              <nz-form-label>状态</nz-form-label>
+              <nz-form-control>
+                <nz-select [(ngModel)]="searchOptions.enableStatus.select" name="enableStatus" [nzPlaceHolder]="'请选择状态'"
+                  [nzShowSearch]="true">
+                  <nz-option *ngFor="let state of searchOptions.enableStatus.list; let idx = index"
+                    [nzLabel]="state.label" [nzValue]="state.value"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col [nzSpan]="expandForm ? 24 : 8" [class.text-right]="expandForm">
+            <icc-button [btnType]="'default'" (btnClick)="getTableList()">
+              <span>查询</span>
+            </icc-button>
+            <icc-button [btnType]="'hollow'" (btnClick)="resetTableList()">
+              <span>重置</span>
+            </icc-button>
+            <a class="expand-box" (click)="expandForm = !expandForm">
+              {{ expandForm ? "收起" : "展开" }}
+              <i nz-icon [nzType]="expandForm ? 'caret-up' : 'caret-down'"></i>
+            </a>
+          </div>
+        </div>
+      </form>
+      <icc-button [btnType]="'default'" (btnClick)="add()" acl [acl-ability]="'channelAutoSwitch.add'">
+        <img src="./assets/images/btnIcon/btn_add_white.png" alt="" />
+        <span>新增</span>
+      </icc-button>
+      <icc-button [btnType]="'danger'" (btnClick)="showModal('', true)" acl
+        [acl-ability]="'channelAutoSwitch.batchDelete'">
+        <img src="./assets/images/btnIcon/btn_remove_white.png" alt="" />
+        <span>删除</span>
+      </icc-button>
+      <div class="my-md">
+        <nz-alert [nzType]="'info'" [nzShowIcon]="true" [nzMessage]="message">
+          <ng-template #message>
+            已选择
+            <strong class="text-primary">{{ selectedRows.length }}</strong>
+            项
+          </ng-template>
+        </nz-alert>
+      </div>
+      <st [page]="{}" #st [widthMode]="{ type: 'strict' }" [scroll]="{ x: '1400px' }" [data]="url" [columns]="columns"
+        [res]="res" [req]="req" [page]="page" [noResult]="noResultRef" (change)="stChange($event)">
+        <ng-template #noResultRef>
+          <div class="st-empty-box">
+            <img src="./assets/images/nothing/search.png" alt="" />
+            <p class="empty-text">抱歉，查询无此数据</p>
+          </div>
+        </ng-template>
+        <ng-template st-row="channelNameTp" let-item let-index="index">
+          <icc-table-text *ngIf="item.channelName && item.channelName.length > 0" [color]="'#1890ff'"
+            [text]="item.channelName" (textclick)="detail(item)" [width]="120"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="tpl-supportProvincesList" let-item let-index="index">
+          <icc-table-text [text]="item.supportProvinces || '-'" [width]="100"></icc-table-text>
+        </ng-template>
+      </st>
+    </nz-card>
+  </div>
+</div>
+
+<nz-modal [(nzVisible)]="isVisible" nzTitle="填写切换原因" [nzFooter]="modalFooter1" (nzOnCancel)="handleCancelSwitch(f)">
+  <form nz-form #f="ngForm" nz-form>
+    <nz-form-item *nzModalContent>
+      <nz-form-label nzRequired nzSpan="4" nzOffset="2" nzRequired>切换原因</nz-form-label>
+      <nz-form-control nzSpan="16" nzHasFeedback [nzErrorTip]="combineTp3">
+        <textarea placeholder="请输入" nz-input [(ngModel)]="manualSwitchReason" name="manualSwitchReason" minlength="3"
+          maxlength="20" pattern="^[^\s]+(\s+[^\s]+)*$" required></textarea>
+        <ng-template #combineTp3 let-control>
+          <ng-container *ngIf="control.hasError('required')">切换原因3-20个字符</ng-container>
+          <ng-container *ngIf="control.hasError('minlength')">切换原因3-20个字符</ng-container>
+          <ng-container *ngIf="control.hasError('maxlength')">切换原因3-20个字符</ng-container>
+          <ng-container *ngIf="control.hasError('pattern')">开头结尾不能有空格</ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+
+  <ng-template #modalFooter1>
+    <icc-button [btnType]="'hollow'" (btnClick)="handleCancelSwitch(f)">
+      <span>取消</span>
+    </icc-button>
+    <icc-button [btnType]="'default'" (btnClick)="manulSwitchOk(f)" [isDisabled]="!f.valid">
+      <span>确定</span>
+    </icc-button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isNoticeVisible" [nzWidth]="600" nzTitle="短信渠道切换通知设置" [nzFooter]="noticeModalFooter"
+  (nzOnCancel)="handleCancelNotice(form)" (nzAfterOpen)="handleModalOpen()">
+  <form nz-form nz-row #validForm="ngForm">
+    <nz-card nz-row>
+      <nz-form-item *nzModalContent>
+        <nz-form-label nzRequired nzSpan="4">通知人员</nz-form-label>
+        <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="noticeErrorTpl" [nzValidateStatus]="validate">
+          <textarea nz-input [(ngModel)]="this.noticeForm.noticePerson" name="noticePerson" [required]="true"
+            maxlength="12000" (ngModelChange)="throttleFn()" (blur)="onblur()" placeholder="请输入"></textarea>
+          <div class="notice-tip">
+            <span>多个手机号码以英文逗号隔开</span>
+            <span>当前共 {{ curCount }}/1000个号码</span>
+          </div>
+          <ng-template #noticeErrorTpl let-control>
+            <ng-container *ngIf="(control != null && control.hasError('required')) || required">请输入手机号</ng-container>
+            <ng-container *ngIf="noticeValid">请输入正确的手机号</ng-container>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+    </nz-card>
+  </form>
+
+  <ng-template #noticeModalFooter>
+    <icc-button [btnType]="'hollow'" (btnClick)="handleCancelNotice(validForm)">
+      <span>关闭</span>
+    </icc-button>
+    <icc-button [btnType]="'default'" (btnClick)="handleNoticeOk(validForm)" [isDisabled]="required || noticeValid">
+      <span>保存</span>
+    </icc-button>
+  </ng-template>
+</nz-modal>

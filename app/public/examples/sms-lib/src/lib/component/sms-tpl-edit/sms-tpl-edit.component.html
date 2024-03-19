@@ -1,0 +1,281 @@
+<form #form="ngForm" nz-form>
+  <icc-collapse-wrapper
+    [list]="source.templates"
+    [showpriority]="source.useTmplMethod == 1"
+    [title]="title"
+    [header]="header"
+    [opRender]="opRender"
+    [itemRender]="itemRender"
+    [maxLimits]="this.source.maxTemplateLimit"
+    [addFn]="addTemplate"
+    [isActive]="isActivePanel"
+    (update)="updateHandle()"
+  >
+    <ng-template #title>
+      <icc-tpl-header [type]="type" [template]="standardTemplate" (update)="updateHandle()">
+        <img class="biz-type-icon" src="{{ smsIcon }}" alt="" />
+      </icc-tpl-header>
+    </ng-template>
+    <ng-template #header let-item="item" let-index="index">
+      <icc-tpl-name [item]="item" [type]="type"></icc-tpl-name>
+    </ng-template>
+    <ng-template #opRender let-item="item" let-index="index">
+      <icc-tpl-operate [index]="index" [type]="type" [valid]="form.valid || false" [template]="standardTemplate" (update)="updateHandle()"></icc-tpl-operate>
+    </ng-template>
+    <ng-template #itemRender let-item="item" let-index="index">
+      <div class="biz-type-item">
+        <!-- 普通消息 -->
+        <ng-container *ngIf="!isAimMsg">
+          <!-- 复用操作栏 -->
+          <icc-tpl-copy [index]="index" [type]="type" (copyChange)="copyHandle($event, index)" (update)="updateHandle()"></icc-tpl-copy>
+
+          <!-- 选择模板库模板 -->
+          <icc-tpl-select
+            *ngIf="hasTemplateLibrary"
+            [selectTplName]="item.selectTplName"
+            [templateName]="item.name"
+            [msgType]="type"
+            (selectchange)="onSelectChange($event, index)"
+            (openchange)="onOpenChange($event)"
+          ></icc-tpl-select>
+
+          <!-- 业务变量 -->
+          <icc-tpl-variable [variableBinds]="source.variableBinds || []" (insert)="insertVar($event, index)"></icc-tpl-variable>
+
+          <!-- 模板内容 -->
+          <nz-form-item>
+            <nz-form-label [nzSpan]="3" nzRequired>模板内容</nz-form-label>
+            <nz-form-control [nzSpan]="15" [nzErrorTip]="SMSContentErrorTpl">
+              <!-- 配置链接 -->
+              <button *ngIf="showShorturl" (click)="OpenShortChainModal(item)" class="add-btn" nz-button nzType="dashed">
+                <i nz-icon nzType="plus" class="add"></i>
+                <span>插入短链</span>
+              </button>
+              <div style="margin-bottom: 8px; display: inline-block" *ngIf="showSalePatch">
+                <button (click)="openPatchModal(item, 2)" class="add-btn" nz-button nzType="dashed">
+                  <i nz-icon nzType="plus" class="add"></i>
+                  <span>插入贴片</span>
+                </button>
+                <icc-patch-popover *ngFor="let _item of item.patchStrategy" [target]="_item" style="margin: 0 10px 0 0"></icc-patch-popover>
+              </div>
+              <!-- 短信签名 start -->
+              <div class="signature-wrapper">短信签名:【{{ signature }}】</div>
+              <div class="sms-sign-tip">
+                <span class="iconfont icon-icon-test wenhao icon-wenhao-cls" style="font-size: 14px; margin-left: 0"></span>
+                <span style="font-size: 12px">
+                  短信内容默认携带当前登录账号的账号签名下发，实际收信签名以下发结果为准（运营商通道如果存在通道签名，则消息内容携带通道签名，而非账号签名）
+                </span>
+              </div>
+              <!-- 短信签名 end -->
+
+              <!-- ============================== -->
+              <textarea
+                hidden="true"
+                (click)="setCursorPositionByEvent($event, item)"
+                rows="6"
+                (keyup)="setCursorPositionByEvent($event, item)"
+                [name]="'tpl-content' + index"
+                nz-input
+                [(ngModel)]="item.content"
+                minlength="1"
+                [maxlength]="maxLength"
+                placeholder="请输入内容"
+                required
+              ></textarea>
+              <!-- icc-fake-textarea 替换 textarea -->
+              <icc-fake-textarea
+                #textArea
+                style="width: 100%"
+                (valueChange)="handelValueChange($event, item)"
+                [value]="item.content"
+                [pasterList]="item.patchStrategy"
+                [(cursorOffset)]="item.vIndex"
+                [serverUrl]="item.serverUrl || null"
+                *ngIf="!item.disabled"
+                [maxlength]="maxLength"
+                [placeholder]="'请输入内容'"
+                [isTplEdit]="true"
+              ></icc-fake-textarea>
+              <span class="text-count" *ngIf="item.content.length > 0">
+                <b>含签名</b>
+                共&nbsp;
+                <b>
+                  {{ item.content.length + (signature ? signature.length + 2 : 0) }}
+                </b>
+                &nbsp;字， 预计分&nbsp;
+                <b style="color: red">{{ calcSegments(item.content) }}</b>
+                &nbsp;段
+                <span
+                  style="font-size: 12px"
+                  class="iconfont icon-wenhao wenhao"
+                  nzTooltipTitle="可能存在【通道签名】，实际字数以下发结果为准"
+                  nzTooltipPlacement="top"
+                  nz-tooltip
+                ></span>
+              </span>
+              <ng-template #SMSContentErrorTpl let-control>
+                <ng-container *ngIf="control.hasError('required')">短信模板内容不能为空</ng-container>
+                <ng-container *ngIf="control.hasError('minlength', 'maxlength')">短信模板内容长度1~{{ maxLength }}的字符串</ng-container>
+              </ng-template>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-container>
+
+        <!-- M消息 -->
+        <div *ngIf="isAimMsg" class="aim-wrapper">
+          <div class="aim-info">
+            <!-- M消息模板名称 -->
+            <nz-form-item>
+              <nz-form-label [nzSpan]="6" nzRequired>M消息模板名称</nz-form-label>
+              <nz-form-control [nzSpan]="14">
+                <nz-select
+                  nzServerSearch
+                  [(ngModel)]="item.varMap.aimTplId"
+                  (ngModelChange)="aimTemplateChange(item, $event)"
+                  (nzOnSearch)="tplNamesearch($event)"
+                  [name]="'aimTemplateName' + index"
+                  [nzPlaceHolder]="item?.varMap?.aimTplName ? item?.varMap?.aimTplName : '基于模板名称选择，显示M消息模板内容'"
+                  [nzShowSearch]="true"
+                  (nzFocus)="clickTempChoose()"
+                >
+                  <nz-option *ngFor="let aimTemp of aimTemplateList; let idx = index" [nzLabel]="aimTemp.tplName" [nzValue]="aimTemp.tplId"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+            <!-- M消息模板ID -->
+            <nz-form-item>
+              <nz-form-label [nzSpan]="6" nzRequired>M消息模板ID</nz-form-label>
+              <nz-form-control [nzSpan]="14">
+                <nz-select
+                  nzServerSearch
+                  [(ngModel)]="item.varMap.aimTplId"
+                  (ngModelChange)="aimTemplateChange(item, $event)"
+                  (nzOnSearch)="tplIdsearch($event)"
+                  [name]="'aimTemplateId' + index"
+                  [nzPlaceHolder]="item?.varMap?.aimTplId ? item?.varMap?.aimTplId : '基于模板ID选择，显示M消息模板内容'"
+                  [nzShowSearch]="true"
+                  (nzFocus)="clickTempChoose()"
+                >
+                  <nz-option *ngFor="let aimTemp of aimTemplateList; let idx = index" [nzLabel]="aimTemp.tplId" [nzValue]="aimTemp.tplId"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+
+            <!-- M消息链接 -->
+            <nz-form-item>
+              <nz-form-label [nzSpan]="6" nzRequired>M消息链接</nz-form-label>
+              <nz-form-control [nzSpan]="18">
+                <button (click)="OpenAimLinkChoose(item)" class="add-btn" nz-button nzType="dashed">
+                  <i nz-icon nzType="plus" class="add"></i>
+                  <span>选择M消息链接</span>
+                </button>
+                <input
+                  nz-input
+                  readonly
+                  name="aimUrl"
+                  [value]="item?.aimLinkStatus === 0 ? null : item?.varMap?.aimUrl"
+                  [placeholder]="item?.aimLinkStatus === 0 ? item?.varMap?.aimUrl : '请选择M消息链接'"
+                />
+                <div class="url-count" *ngIf="item?.varMap?.aimUrl?.length">{{ "共 " + item?.varMap?.aimUrl?.length + "
+                  字" }}</div>
+              </nz-form-control>
+            </nz-form-item>
+            <!-- 业务变量 -->
+            <icc-tpl-variable [labelSpan]="6" [variableBinds]="source.variableBinds || []" (insert)="insertVar($event, index)"></icc-tpl-variable>
+
+            <!-- 短信签名 -->
+            <nz-form-item>
+              <nz-form-label [nzSpan]="6">短信签名</nz-form-label>
+              <nz-form-control [nzSpan]="14">
+                <span style="font-weight: bold">【{{ signature }}】</span>
+              </nz-form-control>
+            </nz-form-item>
+
+            <!-- 短信原文 -->
+            <nz-form-item>
+              <nz-form-label [nzSpan]="6" nzRequired>短信原文</nz-form-label>
+              <nz-form-control [nzSpan]="18" [nzErrorTip]="SMSContentErrorTpl">
+                <button *ngIf="showShorturl" (click)="OpenShortChainModal(item)" class="add-btn" style="margin-right: 10px" nz-button nzType="dashed">
+                  <i nz-icon nzType="plus" class="add"></i>
+                  <span>插入短链</span>
+                </button>
+                <div style="margin-bottom: 8px; display: inline-block" *ngIf="showSalePatch">
+                  <button (click)="openPatchModal(item, 2)" class="add-btn" nz-button nzType="dashed">
+                    <i nz-icon nzType="plus" class="add"></i>
+                    <span>插入贴片</span>
+                  </button>
+                  <icc-patch-popover *ngFor="let _item of item.patchStrategy" [target]="_item" style="margin: 0 10px 0 10px"></icc-patch-popover>
+                </div>
+                <div class="sms-sign-tip">
+                  <span class="iconfont icon-icon-test wenhao icon-wenhao-cls" style="font-size: 14px; margin-left: 0"></span>
+                  <span style="font-size: 12px">M消息解析失败时，终端展示为短信签名+短信原文+M消息链接</span>
+                </div>
+                <!-- ============================== -->
+                <textarea
+                  hidden="true"
+                  (click)="setCursorPositionByEvent($event, item)"
+                  rows="6"
+                  (keyup)="setCursorPositionByEvent($event, item)"
+                  [name]="'tpl-content' + index"
+                  nz-input
+                  [(ngModel)]="item.content"
+                  minlength="1"
+                  [maxlength]="maxLength"
+                  placeholder="请输入内容"
+                  required
+                ></textarea>
+                <!-- icc-fake-textarea 替换 textarea -->
+                <icc-fake-textarea
+                  #textArea
+                  style="width: 100%"
+                  (valueChange)="handelValueChange($event, item)"
+                  [value]="item.content"
+                  [pasterList]="item.patchStrategy"
+                  [(cursorOffset)]="item.vIndex"
+                  [serverUrl]="item.serverUrl || null"
+                  *ngIf="!item.disabled"
+                  [maxlength]="maxLength"
+                  [placeholder]="'请输入内容'"
+                  [isTplEdit]="true"
+                ></icc-fake-textarea>
+                <span class="text-count" *ngIf="item.content.length > 0">
+                  <b>含签名</b>
+                  共&nbsp;
+                  <b>
+                    {{ item.content.length + (signature ? signature.length + 2 : 0) }}
+                  </b>
+                  &nbsp;字， 预计分&nbsp;
+                  <b style="color: red">{{ calcSegments(item.content) }}</b>
+                  &nbsp;段
+                  <span
+                    style="font-size: 12px"
+                    class="iconfont icon-wenhao wenhao"
+                    nzTooltipTitle="可能存在【通道签名】，实际字数以下发结果为准"
+                    nzTooltipPlacement="top"
+                    nz-tooltip
+                  ></span>
+                </span>
+                <ng-template #SMSContentErrorTpl let-control>
+                  <ng-container *ngIf="control.hasError('required')">短信原文内容不能为空</ng-container>
+                  <ng-container *ngIf="control.hasError('minlength', 'maxlength')">短信原文内容长度1~{{ maxLength }}的字符串</ng-container>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div class="aim-preview">
+            <!-- 解析成功预览 -->
+            <icc-template-aim-view
+              [resolveSuccess]="true"
+              [tplVarMap]="item.varMap"
+              [tplId]="item.varMap?.aimTplId"
+              [showTip]="'解析成功预览'"
+            ></icc-template-aim-view>
+            <!-- 解析失败预览 -->
+            <icc-template-aim-view [resolveSuccess]="false" [failContent]="item.failContent" [showTip]="'解析失败预览'"></icc-template-aim-view>
+          </div>
+        </div>
+        <icc-tpl-condition [item]="source.templates[index]" [index]="index" [type]="type" *ngIf="source.useTmplMethod !== '2'"></icc-tpl-condition>
+      </div>
+    </ng-template>
+  </icc-collapse-wrapper>
+</form>

@@ -1,0 +1,56 @@
+<div class="modal-header modal-header-update">
+  <div class="modal-title">{{ record.name }}费率设置</div>
+</div>
+<div class="main">
+  <form nz-form #f="ngForm" se-container="1" labelWidth="150" nz-form>
+    <div nz-row>
+      <nz-form-item nz-col nzSpan="18" style="display: flex">
+        <nz-form-label nzSpan="4" nzOffset="2" nzRequired>基准费率</nz-form-label>
+        <nz-form-control nzSpan="16" nzHasFeedback [nzErrorTip]="combineTpl">
+          <nz-input-group [nzSuffix]="warnSuffix">
+            <input placeholder="0.0000" nz-input [(ngModel)]="priceRate" name="priceRate" required
+              pattern="^[0-9]{1,6}([.][0-9]{1,4})?$" (ngModelChange)="countChange()" />
+            <ng-template #combineTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">请正确填写费率，费率最多为小数点前6位和后4位</ng-container>
+              <ng-container *ngIf="control.hasError('pattern')">请正确填写费率，费率最多为小数点前6位和后4位</ng-container>
+            </ng-template>
+            <ng-template #warnSuffix>
+              <span [ngStyle]="{
+                  transform: change ? 'translateX(-20px)' : 'translateX(0px)'
+                }">
+                元
+              </span>
+            </ng-template>
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item nz-col nzSpan="4">
+        <nz-form-control>
+          <a (click)="showHistory()">
+            <span *ngIf="!isShowHistory">查看历史</span>
+            <span *ngIf="isShowHistory">关闭历史</span>
+          </a>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </form>
+  <div class="model-content-scroll" style="height: 350px; margin-top: 0px; padding: 0 15px" [hidden]="!isShowHistory">
+    <st [page]="{}" #st [widthMode]="{ type: 'strict' }" [data]="url" [columns]="columns" [res]="res" [req]="req"
+      [page]="page" [noResult]="noResultRef">
+      <ng-template #noResultRef>
+        <div class="st-empty-box">
+          <img src="./assets/images/nothing/search.png" alt="" />
+          <p class="empty-text">抱歉，查询无此数据</p>
+        </div>
+      </ng-template>
+    </st>
+  </div>
+</div>
+<div class="modal-footer modal-footer-update">
+  <icc-button [btnType]="'hollow'" (btnClick)="close()">
+    <span>关闭</span>
+  </icc-button>
+  <icc-button [btnType]="'default'" [isDisabled]="!f.valid" [isLoading]="http.loading" (btnClick)="save()">
+    <span>保存</span>
+  </icc-button>
+</div>

@@ -1,0 +1,27 @@
+{
+  "extends": "@eggjs/tsconfig",
+  "compilerOptions": {
+    "declaration": false,
+    "strict": false,
+    "strictNullChecks": false,
+    "noImplicitOverride": false,
+    "allowSyntheticDefaultImports": false,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "strictFunctionTypes": false,
+    "noEmitOnError": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "sourceMap": false,
+    "allowJs": true,
+    "paths": {
+      "@/module/*": ["app/module/*"],
+      "@himalaya": ["app/parse/third/himalaya/index"],
+      "@typescript-parser": ["app/parse/third/typescript-parser/index"],
+      "@ngParse/html/*": ["app/parse/html/*"],
+      "@ngParse/ts/*": ["app/parse/ts/*"]
+    },
+    "baseUrl": "."
+  }
+}

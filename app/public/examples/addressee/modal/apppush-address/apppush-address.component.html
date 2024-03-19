@@ -1,0 +1,124 @@
+<div class="modal-header-update">
+  <div class="modal-title">AppPush用户</div>
+</div>
+
+<div class="modal-row">
+  <nz-tabset [nzTabBarGutter]="0" class="modal-column-1">
+    <nz-tab nzTitle="AppPush用户">
+      <nz-spin nzTip="加载中..." [nzSpinning]="loading">
+        <div class="tree-box" style="padding-top: 20px">
+          <ul class="appPush-account-wrapper">
+            <li class="appPush-account-item" [ngClass]="{ active: i === actIndex }"
+              *ngFor="let item of appPushAccounts; index as i" (click)="getFans(item, i)">
+              <span nz-tooltip [nzTooltipTitle]="item.name" nzTooltipPlacement="top" class="appPush-item-span">
+                {{ item.name }}
+              </span>
+            </li>
+          </ul>
+        </div>
+      </nz-spin>
+    </nz-tab>
+  </nz-tabset>
+  <div class="modal-column-2">
+    <form nz-form [nzLayout]="'inline'" class="search__form" style="padding-top: 15px">
+      <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+        <div nz-col nzMd="8" nzSm="24">
+          <nz-form-item>
+            <nz-form-label nzFor="nickname">RegId</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="appPushSearchOptions.xwRegId" name="xwRegId" placeholder="请输入完整的RegId"
+                maxlength="50" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col nzMd="8" nzSm="24">
+          <nz-form-item>
+            <nz-form-label>手机厂商</nz-form-label>
+            <nz-form-control>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="appPushSearchOptions.brand" name="brand" placeholder="请输入完整的手机厂商"
+                  maxlength="50" />
+              </nz-form-control>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+          <nz-form-item>
+            <nz-form-label>在线状态</nz-form-label>
+            <nz-form-control>
+              <nz-select [(ngModel)]="appPushSearchOptions.status" name="status" [nzPlaceHolder]="'请选择在线状态'"
+                [nzShowSearch]="true">
+                <nz-option *ngFor="let state of statusList; let idx = index" [nzLabel]="state.label"
+                  [nzValue]="state.value"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+          <nz-form-item>
+            <nz-form-label>别名</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="appPushSearchOptions.alias" name="alias" placeholder="请输入完整的别名"
+                maxlength="40" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="expandForm ? 16 : 8" [class.text-right]="expandForm" class="search-btns" [ngStyle]="{
+            'justify-content': expandForm ? 'flex-end' : 'flex-start'
+          }">
+          <icc-button [btnType]="'default'" (btnClick)="getTableList()">
+            <span>查询</span>
+          </icc-button>
+          <icc-button [btnType]="'hollow'" (btnClick)="resetTableList()">
+            <span>重置</span>
+          </icc-button>
+          <a class="expand-box" (click)="expandForm = !expandForm" style="margin-left: 0">
+            {{ expandForm ? "收起" : "展开" }}
+            <i nz-icon [nzType]="expandForm ? 'caret-up' : 'caret-down'"></i>
+          </a>
+        </div>
+      </div>
+    </form>
+    <st [page]="{}" #appPushViewSt [widthMode]="{ type: 'strict' }" [scroll]="{ x: '730px' }" [data]="appPushAddressUrl"
+      [columns]="appPushViewCols" [res]="appPushRes" [req]="req" ps="5" [noResult]="noResultRef"
+      (change)="appPushstChange($event)">
+      <ng-template #noResultRef>
+        <div class="st-empty-box" style="min-height: 225px">
+          <img src="./assets/images/nothing/search.png" alt="" />
+          <p class="empty-text">抱歉，查询无此数据</p>
+        </div>
+      </ng-template>
+      <ng-template st-row="tpl-regid" let-item let-index="index">
+        <icc-table-text [text]="item.xwRegId" [width]="190"></icc-table-text>
+      </ng-template>
+      <ng-template st-row="tpl-alias" let-item let-index="index">
+        <icc-table-text [text]="item.alias" [width]="150"></icc-table-text>
+      </ng-template>
+    </st>
+  </div>
+  <div class="modal-column-3">
+    <icc-button [btnType]="'default'" (btnClick)="addAllAppPush()">
+      <span>添加全部</span>
+    </icc-button>
+    <icc-button [btnType]="'default'" (btnClick)="addSelectedAppPush()">
+      <span>添加已选</span>
+    </icc-button>
+  </div>
+  <div class="modal-column-4">
+    <p class="box-title">已选收信人</p>
+    <div class="list-box">
+      <ng-container *ngFor="let item of selectAddress">
+        <app-selected [text]="item.name" [count]="item.len" (delete)="onTagClose2(item)"></app-selected>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer modal-footer-update">
+  <icc-button [btnType]="'hollow'" (btnClick)="handleCancel()">
+    <span>取消</span>
+  </icc-button>
+  <icc-button [btnType]="'default'" (btnClick)="handleOk()" [isDisabled]="!okSelect">
+    <span>确定</span>
+  </icc-button>
+</div>

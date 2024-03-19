@@ -1,0 +1,21 @@
+<p class="top">
+  <icc-msg-icon [msgType]="message.msgType"></icc-msg-icon>
+  <span>{{ message.name }}</span>
+</p>
+<div class="img-content" *ngIf="!isAimMsg">
+  <img src="./assets/images/send/iPhone_msg.png" alt="" />
+  <p class="msg-number">{{ message.sender }}</p>
+  <p class="msg-time">
+    <span>{{ message.date }}</span>
+    <span>{{ message.week }}</span>
+    <span>{{ message.time }}</span>
+  </p>
+  <div class="msg-content-wrapper">
+    <div class="msg-content">
+      <ng-container *ngIf="signature">【{{ signature }}】</ng-container>
+      {{ message?.infos?.[0]?.content }}
+    </div>
+  </div>
+</div>
+
+<icc-template-aim-view *ngIf="isAimMsg" [resolveSuccess]="true" [tplId]="message?.infos?.[0]?.content || ''" [showTip]="''"></icc-template-aim-view>

@@ -1,0 +1,215 @@
+<!-- <div class="wrapper">
+  <div class="table-outter-box">
+    <nz-card [nzBordered]="false">
+      <form nz-form [nzLayout]="'inline'" class="search__form">
+        <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+          <div nz-col nzMd="8" nzSm="24">
+            <nz-form-item>
+              <nz-form-label nzSpan="6">敏感字</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <input nz-input [(ngModel)]="searchOptions.keyword" placeHolder="请输入敏感字" name="keyword" id="keyword" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24">
+            <nz-form-item>
+              <nz-form-label nzSpan="6">敏感字类型</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-select [(ngModel)]="searchOptions.keywordTypes.select" name="keywordType" [nzPlaceHolder]="'请选择敏感字类型'" [nzShowSearch]="true">
+                  <nz-option
+                    *ngFor="let keywordType of searchOptions.keywordTypes.list; let idx = index"
+                    [nzLabel]="keywordType.label"
+                    [nzValue]="keywordType.value"
+                  ></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+            <nz-form-item>
+              <nz-form-label nzSpan="6">管控策略</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-select [(ngModel)]="searchOptions.controlStrategys.select" name="controlStrategy" [nzPlaceHolder]="'请选择管控策略'" [nzShowSearch]="true">
+                  <nz-option
+                    *ngFor="let controlStrategy of searchOptions.controlStrategys.list; let idx = index"
+                    [nzLabel]="controlStrategy.label"
+                    [nzValue]="controlStrategy.value"
+                  ></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+            <nz-form-item>
+              <nz-form-label nzSpan="6">管控类型</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-select [(ngModel)]="searchOptions.controlTypes.select" name="controlType" [nzPlaceHolder]="'请选择管控类型'" [nzShowSearch]="true">
+                  <nz-option
+                    *ngFor="let controlType of searchOptions.controlTypes.list; let idx = index"
+                    [nzLabel]="controlType.label"
+                    [nzValue]="controlType.value"
+                  ></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm && searchOptions.controlTypes.select === 2">
+            <nz-form-item>
+              <nz-form-label nzSpan="6" nzFor="userAccount">关联账号</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-select [(ngModel)]="searchOptions.user.select" name="user" [nzShowSearch]="true" (nzOnSearch)="search($event)">
+                  <ng-container *ngFor="let user of searchOptions.user.list; let idx = index">
+                    <nz-option *ngIf="idx < 10" [nzValue]="user.value" [nzLabel]="user.label"></nz-option>
+                  </ng-container>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm && searchOptions.controlTypes.select === 3">
+            <nz-form-item>
+              <nz-form-label nzSpan="6" nzFor="biz">关联业务模板</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-select [(ngModel)]="searchOptions.biz.select" name="biz" [nzShowSearch]="true" (nzOnSearch)="searchBiz($event)">
+                  <ng-container *ngFor="let biz of searchOptions.biz.list; let idx = index">
+                    <nz-option *ngIf="idx < 10" [nzValue]="biz.value" [nzLabel]="biz.label"></nz-option>
+                  </ng-container>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm && searchOptions.controlTypes.select === 4">
+            <nz-form-item>
+              <nz-form-label nzSpan="6" nzFor="channel">关联渠道</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-select [(ngModel)]="searchOptions.channel.select" name="channel" [nzShowSearch]="true" (nzOnSearch)="searchChannel($event)">
+                  <ng-container *ngFor="let channel of searchOptions.channel.list; let idx = index">
+                    <nz-option *ngIf="idx < 10" [nzValue]="channel.value" [nzLabel]="channel.label"></nz-option>
+                  </ng-container>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col [nzSpan]="expandForm ? 24 : 8" [class.text-right]="expandForm">
+            <icc-button [btnType]="'default'" (btnClick)="getTableList()">
+              <span>查询</span>
+            </icc-button>
+            <icc-button [btnType]="'hollow'" (btnClick)="resetTableList()">
+              <span>重置</span>
+            </icc-button>
+            <a class="expand-box" (click)="expandForm = !expandForm">
+              {{ expandForm ? "收起" : "展开" }}
+              <i nz-icon [nzType]="expandForm ? 'caret-up' : 'caret-down'"></i>
+            </a>
+          </div>
+        </div>
+      </form>
+      <icc-button [btnType]="'default'" (btnClick)="add()" acl [acl-ability]="'sendconstraint.keyword.sms.add'">
+        <img src="./assets/images/btnIcon/btn_add_white.png" alt="" />
+        <span>新增</span>
+      </icc-button>
+      <icc-button [btnType]="'default'" (btnClick)="import()" acl [acl-ability]="'sendconstraint.keyword.sms.import'">
+        <img src="./assets/images/btnIcon/btn_import_white.png" alt="" />
+        <span>导入</span>
+      </icc-button>
+      <icc-button [btnType]="'default'" (btnClick)="export()" acl [acl-ability]="'sendconstraint.keyword.sms.export'">
+        <img src="./assets/images/btnIcon/btn_export_white.png" alt="" />
+        <span>导出</span>
+      </icc-button>
+      <icc-button [btnType]="'danger'" acl [acl-ability]="'sendconstraint.keyword.sms.delete'" (btnClick)="showModal('', true)">
+        <img src="./assets/images/btnIcon/btn_remove_white.png" alt="" />
+        <span>删除</span>
+      </icc-button>
+      <div class="my-md">
+        <nz-alert [nzType]="'info'" [nzShowIcon]="true" [nzMessage]="message">
+          <ng-template #message>
+            已选择
+            <strong class="text-primary">{{ selectedRows.length }}</strong>
+            项
+          </ng-template>
+        </nz-alert>
+      </div>
+      <st [page]="{}"
+        #st
+        [widthMode]="{ type: 'strict' }"
+        [scroll]="{ x: '1400px' }"
+        [data]="url"
+        [columns]="columns"
+        [res]="res"
+        [req]="req"
+        [page]="page"
+        [noResult]="noResultRef"
+        (change)="stChange($event)"
+      >
+        <ng-template #noResultRef>
+          <div class="st-empty-box">
+            <img src="./assets/images/nothing/search.png" alt="" />
+            <p class="empty-text">抱歉，查询无此数据</p>
+          </div>
+        </ng-template>
+        <ng-template st-row="templ-keyword" let-item let-index="index">
+          <icc-table-text [text]="item.keyword" [width]="228"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="templ-account" let-item let-index="index">
+          <icc-table-text [text]="item.controlType === 2 ? item.targetUserName : '-'" [width]="118"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="templ-updateUserName" let-item let-index="index">
+          <icc-table-text [text]="item.updateUserName == null ? '-' : item.updateUserName" [width]="118"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="templ-targetChannelName" let-item let-index="index">
+          <icc-table-text [text]="item.controlType !== 4 ? '-' : item.targetChannelName" [width]="118"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="templ-targetBizName" let-item let-index="index">
+          <icc-table-text [text]="item.controlType !== 3 ? '-' : item.targetBizName" [width]="118"></icc-table-text>
+        </ng-template>
+      </st>
+    </nz-card>
+  </div>
+</div>
+<nz-modal [(nzVisible)]="isVisible" nzTitle="请确认是否删除!" [nzFooter]="modalFooter1" (nzOnCancel)="handleCancel()">
+  <p class="danger" *nzModalContent>{{ messages }}</p>
+  <ng-template #modalFooter1>
+    <icc-button [btnType]="'hollow'" (btnClick)="handleCancel()">
+      <span>取消</span>
+    </icc-button>
+    <icc-button [btnType]="'default'" (btnClick)="handleOk()">
+      <span>确定</span>
+    </icc-button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isOpenExport" nzTitle="提示" (nzOnCancel)="closeExport()" [nzFooter]="modalExportFooter">
+  <ng-container *nzModalContent>
+    <p>
+      <img src="./assets/images/send/export-icon.gif" alt="" style="display: inline-block" />
+      <label style="margin-left: 10px">数据正在导出中。。。</label>
+    </p>
+    <p style="color: #9ea8c8">
+      您可以直接进入
+      <a (click)="goExport()">【导入/导出管理】</a>
+      界面查看结果
+    </p>
+  </ng-container>
+  <ng-template #modalExportFooter>
+    <icc-button [btnType]="'default'" (btnClick)="closeExport()">
+      <span>知道了</span>
+    </icc-button>
+  </ng-template>
+</nz-modal>
+<nz-modal [(nzVisible)]="isOpenImport" nzTitle="提示" (nzOnCancel)="closeImport()" [nzFooter]="modalImportFooter">
+  <ng-container *nzModalContent>
+    <p>
+      <img src="./assets/images/send/import-icon.gif" alt="" style="display: inline-block" />
+      <label style="margin-left: 10px">数据正在导入中。。。</label>
+    </p>
+    <p style="color: #9ea8c8">
+      您可以直接进入
+      <a (click)="goImport()">【导入/导出管理】</a>
+      界面查看结果
+    </p>
+  </ng-container>
+  <ng-template #modalImportFooter>
+    <icc-button [btnType]="'default'" (btnClick)="closeImport()">
+      <span>知道了</span>
+    </icc-button>
+  </ng-template>
+</nz-modal> -->

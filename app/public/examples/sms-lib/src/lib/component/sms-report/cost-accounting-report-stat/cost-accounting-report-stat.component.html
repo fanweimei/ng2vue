@@ -1,0 +1,182 @@
+<div class="wrapper">
+  <div class="table-outter-box">
+    <nz-card [nzBordered]="false" style="margin-bottom: -20px">
+      <form nz-form [nzLayout]="'inline'" class="search__form">
+        <div nz-col nzMd="8" nzSm="24">
+          <nz-form-item>
+            <nz-form-label>统计维度</nz-form-label>
+            <nz-form-control style="max-width: 390px">
+              <nz-select [(ngModel)]="statType" name="statType" (ngModelChange)="statTypeChange()">
+                <nz-option *ngFor="let type of statTypes; let idx = index" [nzLabel]="type.label" [nzValue]="type.value"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col nzMd="8" nzSm="24" *ngIf="statType == 1">
+          <nz-form-item>
+            <nz-select [(ngModel)]="level" name="groupLevel" [nzPlaceHolder]="'部门级别'" [nzShowSearch]="true" [ngModelOptions]="{ standalone: true }">
+              <nz-option *ngFor="let level of groupLevel; let idx = index" [nzLabel]="level.label" [nzValue]="level.value"></nz-option>
+            </nz-select>
+          </nz-form-item>
+        </div>
+
+        <div nz-col nzMd="8" nzSm="24">
+          <nz-form-item>
+            <nz-form-label *ngIf="statType == 0">用户账号</nz-form-label>
+            <nz-form-label *ngIf="statType == 1">部门</nz-form-label>
+            <nz-form-label *ngIf="statType == 2">业务模板</nz-form-label>
+            <nz-form-label *ngIf="statType == 3">渠道</nz-form-label>
+            <nz-form-control>
+              <input style="width: 90%" nz-input [(ngModel)]="searchOptions.desName" name="desName" placeholder="请输入" maxlength="30" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+          <nz-form-item>
+            <ng-container *ngIf="trend === 0">
+              <nz-form-label nzFor="dateRange">提交时间</nz-form-label>
+              <nz-form-control style="max-width: 350px">
+                <nz-range-picker
+                  extend
+                  name="date"
+                  [(ngModel)]="searchOptions.startDate"
+                  [(ngModelEnd)]="searchOptions.endDate"
+                  [nzFormat]="'yyyy-MM-dd'"
+                  [nzDisabledDate]="disabledDate"
+                  [ngModelOptions]="{ standalone: true }"
+                  (nzOnOpenChange)="selectDate($event)"
+                  [nzAllowClear]="false"
+                ></nz-range-picker>
+              </nz-form-control>
+            </ng-container>
+
+            <ng-container *ngIf="trend !== 0">
+              <nz-form-label nzFor="dateRange">提交时间</nz-form-label>
+              <nz-form-control style="max-width: 314px">
+                <nz-range-picker
+                  [(ngModel)]="searchOptions.dateRange"
+                  [ngModelOptions]="{ standalone: true }"
+                  nzFormat="yyyy-MM"
+                  nzShowTime
+                  nzAllowClear
+                ></nz-range-picker>
+              </nz-form-control>
+            </ng-container>
+          </nz-form-item>
+        </div>
+
+        <div
+          nz-col
+          [nzSpan]="expandForm ? 24 : 8"
+          [class.text-right]="expandForm"
+          [ngStyle]="{
+            'justify-content': expandForm ? 'flex-end' : 'flex-start'
+          }"
+          class="search-btns"
+        >
+          <icc-button [btnType]="'default'" (btnClick)="getTableList()" style="margin-left: 10px">
+            <span>查询</span>
+          </icc-button>
+          <icc-button [btnType]="'hollow'" (btnClick)="resetTableList()">
+            <span>重置</span>
+          </icc-button>
+          <a class="expand-box" (click)="expandForm = !expandForm">
+            {{ expandForm ? "收起" : "展开" }}
+            <i nz-icon [nzType]="expandForm ? 'caret-up' : 'caret-down'"></i>
+          </a>
+        </div>
+      </form>
+    </nz-card>
+
+    <div class="row-wrapper" style="padding-left: 30px; margin-top: 20px">
+      <icc-button [btnType]="'default'" (btnClick)="export()" acl [acl-ability]="'reportStat.costAccounting.export'">
+        <img src="./assets/images/btnIcon/btn_export_white.png" alt="" />
+        <span>导出</span>
+      </icc-button>
+      <div class="table-title">
+        成本总量统计TOP10
+        <span class="date-wapper">
+          ({{ getStatTypeLable() }}:{{ searchOptions.startDate | date: "yyyy-MM-dd" }}至{{ searchOptions.endDate | date: "yyyy-MM-dd" }})
+        </span>
+      </div>
+    </div>
+    <nz-card class="right-statistics">
+      <!-- <div nz-row class="msg-total-item">
+        <label class="text-area">
+          <p class="title">成本总量统计TOP10({{ getStatTypeLable() }}:{{ searchOptions.startDate | date: 'yyyy-MM-dd' }}至{{ searchOptions.endDate | date: 'yyyy-MM-dd' }})</p>
+        </label>
+      </div> -->
+      <div class="chart-area">
+        <div class="line-chart">
+          <p class="chart-yAxis-name">单位：元</p>
+          <div id="trend-chart"></div>
+          <p class="chart-xAxis-name" *ngIf="statType == 0">单位：用户</p>
+          <p class="chart-xAxis-name" *ngIf="statType == 1">单位：部门</p>
+          <p class="chart-xAxis-name" *ngIf="statType == 2">单位：业务模板</p>
+          <p class="chart-xAxis-name" *ngIf="statType == 3">单位：渠道</p>
+        </div>
+        <div class="chart-xAxis-limit"></div>
+      </div>
+    </nz-card>
+
+    <nz-card>
+      <st
+        [page]="{}"
+        #st
+        id="tag-table-id"
+        [widthMode]="{ type: 'strict' }"
+        [scroll]="{ x: '950px' }"
+        [data]="url"
+        [columns]="columns"
+        [res]="res"
+        [req]="req"
+        [page]="page"
+        [noResult]="noResultRef"
+        [body]="bodyTpl"
+      >
+        <ng-template #noResultRef>
+          <div class="st-empty-box">
+            <img src="./assets/images/nothing/search.png" alt="" />
+            <p class="empty-text">抱歉，查询无此数据</p>
+          </div>
+        </ng-template>
+        <ng-template #bodyTpl let-s>
+          <ng-container *ngIf="st.total > 0">
+            <tr class="bg-grey-lighter">
+              <td colspan="1">当前页合计</td>
+              <td colspan="1" *ngIf="statType === 0"></td>
+              <td *ngIf="statType === 0">
+                <span class="td-span">¥ {{ s[2].value | number: "0.4-4" }}</span>
+              </td>
+              <td *ngIf="statType !== 0">
+                <span class="td-span">¥ {{ s[1].value | number: "0.4-4" }}</span>
+              </td>
+              <td colspan="1"></td>
+            </tr>
+          </ng-container>
+        </ng-template>
+      </st>
+    </nz-card>
+  </div>
+</div>
+
+<nz-modal [(nzVisible)]="isOpenExport" nzTitle="提示" (nzOnCancel)="closeExport()" [nzFooter]="modalExportFooter">
+  <ng-container *nzModalContent>
+    <p>
+      <icc-image src="./assets/images/send/export-icon.gif" style="vertical-align: middle"></icc-image>
+      <label style="margin-left: 10px">数据正在导出中。。。</label>
+    </p>
+    <p style="color: #9ea8c8">
+      您可以直接进入
+      <a (click)="goExport()">【导入/导出管理】</a>
+      界面查看结果
+    </p>
+  </ng-container>
+  <ng-template #modalExportFooter>
+    <icc-button [btnType]="'default'" (btnClick)="closeExport()">
+      <span>知道了</span>
+    </icc-button>
+  </ng-template>
+</nz-modal>

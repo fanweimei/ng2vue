@@ -1,0 +1,23 @@
+<ng-container *ngIf="addressBtnList.length">
+  <p class="box-title">收信人</p>
+  <!-- 弹窗按钮组 -->
+  <div class="btn-group">
+    <img
+      *ngFor="let btnItem of addressBtnList"
+      src="./assets/images/send/{{ btnItem.icon }}"
+      title="{{ btnItem.zh_name }}"
+      (click)="addressBtnClick(btnItem.modalType)"
+    />
+  </div>
+  <!-- 收信人列表 -->
+  <div class="select-list">
+    <app-selected
+      *ngFor="let item of addressees; let i = index"
+      [iconImg]="item.icon"
+      [text]="item.name"
+      [count]="item.len"
+      [hidden]="hadSelectAutoTemplate && item.isWxFns"
+      (delete)="onTagClose(i)"
+    ></app-selected>
+  </div>
+</ng-container>

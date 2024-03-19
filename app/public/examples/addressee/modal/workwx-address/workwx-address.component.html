@@ -1,0 +1,77 @@
+<div class="modal-header-update">
+  <div class="modal-title">企业微信通讯录</div>
+</div>
+
+<div class="modal-row">
+  <nz-tabset [nzTabBarGutter]="0" class="modal-column-1">
+    <nz-tab nzTitle="企业微信通讯录">
+      <nz-spin nzTip="加载中..." [nzSpinning]="loading" style="overflow: auto; height: 374px;">
+        <div class="tree-box">
+          <nz-tree #workwxlist [nzData]="workwxNodes" nzAsyncData="true" [nzExpandedKeys]="defaultExpandedKeys"
+            [nzSelectedKeys]="defaultSelectedKeys" (nzClick)="workwxEvent($event)" nzShowLine="true"></nz-tree>
+        </div>
+      </nz-spin>
+    </nz-tab>
+  </nz-tabset>
+  <div class="modal-column-2">
+    <div class="form-box">
+      <sf #workwxsf [ui]="ui" mode="search" [button]="null" [schema]="searchWorkwxSchema"
+        style="text-align: right; padding: 10px 10px 0"></sf>
+      <icc-button class="btn-search" [btnType]="'default'" (btnClick)="searchWorkwxList()">
+        <span>查询</span>
+      </icc-button>
+      <icc-button class="btn-cancel" [btnType]="'hollow'" (btnClick)="resetWorkwxList()">
+        <span>重置</span>
+      </icc-button>
+    </div>
+    <div class="my-md">
+      <nz-alert [nzType]="'info'" [nzShowIcon]="true" [nzMessage]="msg">
+        <ng-template #msg>
+          已选择
+          <strong class="text-primary">{{ selectedRows.length }}</strong>
+          项
+        </ng-template>
+      </nz-alert>
+    </div>
+    <st [page]="{}" #workwxst [widthMode]="{ type: 'strict' }" [data]="workwxAddressUrl" [columns]="workwxColumns"
+      [res]="workwxRes" [req]="req" ps="5" [noResult]="noResultRef" (change)="workwxstChange($event)">
+      <ng-template #noResultRef>
+        <div class="st-empty-box" style="min-height: 225px">
+          <img src="./assets/images/nothing/search.png" alt="" />
+          <p class="empty-text">抱歉，查询无此数据</p>
+        </div>
+      </ng-template>
+      <ng-template st-row="templ-name" let-item let-index="index">
+        <icc-table-text [text]="item.name" [width]="100"></icc-table-text>
+      </ng-template>
+      <ng-template st-row="templ-group" let-item let-index="index">
+        <icc-multi-line-cell [list]="item.groups" [lines]="1"></icc-multi-line-cell>
+      </ng-template>
+    </st>
+  </div>
+  <div class="modal-column-3">
+    <icc-button [btnType]="'default'" (btnClick)="addAllWorkwx()">
+      <span>添加全部</span>
+    </icc-button>
+    <icc-button [btnType]="'default'" (btnClick)="addSelectedWorkwx()">
+      <span>添加已选</span>
+    </icc-button>
+  </div>
+  <div class="modal-column-4">
+    <p class="box-title">已选收信人</p>
+    <div class="list-box">
+      <ng-container *ngFor="let item of selectAddress">
+        <app-selected [text]="item.name" [count]="item.len" (delete)="onTagClose2(item)"></app-selected>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer modal-footer-update">
+  <icc-button [btnType]="'hollow'" (btnClick)="handleCancel()">
+    <span>取消</span>
+  </icc-button>
+  <icc-button [btnType]="'default'" (btnClick)="handleOk()" [isDisabled]="!okSelect">
+    <span>确定</span>
+  </icc-button>
+</div>

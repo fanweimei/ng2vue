@@ -1,0 +1,498 @@
+<section class="card" [hidden]="!openEffect && isAllDel">
+  <p class="title">短信模板</p>
+  <div class="content">
+    <ng-container *ngFor="let tpl of tplList; let i = index">
+      <!--新增的模板 -->
+      <ng-container *ngIf="openEffect && tpl.type === operate['add']">
+        <div class="item">
+          <label class="item-name color-green">模板名称：</label>
+          <div class="item-value">
+            <span class="color-green">{{ tpl.map.name.value }}</span>
+          </div>
+        </div>
+        <div class="item" *ngIf="useTmplMethod !== 2">
+          <label class="item-name color-green">优先级：</label>
+          <div class="item-value">
+            <span class="color-green">{{ tpl.map.priority.value }}</span>
+          </div>
+        </div>
+        <div class="item">
+          <label class="item-name color-green">应用状态：</label>
+          <div class="item-value">
+            <span class="color-green">
+              {{ tpl.map.state.value ? "启用" : "停用" }}
+            </span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name color-green">M消息模板名称：</label>
+          <div class="item-value">
+            <span class="color-green">
+              {{ tpl.map.aimTplName?.value || "-" }}
+            </span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name color-green">M消息模板ID：</label>
+          <div class="item-value">
+            <span class="color-green">
+              {{ tpl.map.aimTplId?.value || "-" }}
+            </span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name color-green">M消息链接：</label>
+          <div class="item-value">
+            <span class="color-green">
+              {{ tpl.map.aimUrl?.value || "-" }}
+            </span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name color-green">M消息模板：</label>
+          <div class="item-box auto-box border-green" style="padding-bottom: 40px">
+            <!-- 解析成功预览 -->
+            <icc-template-aim-view [resolveSuccess]="true" [tplId]="tpl.map.aimTplId?.value" [showTip]="'解析成功预览'"></icc-template-aim-view>
+          </div>
+        </div>
+        <div class="item">
+          <label class="item-name color-green">{{ isAim ? "短信原文：" : "模板内容：" }}</label>
+          <div style="width: 100%">
+            <!-- 短信签名 start -->
+            <div class="signature-wrapper color-green">短信签名:【{{ signature }}】</div>
+            <div class="sms-sign-tip" style="width: 75%">
+              <span class="iconfont icon-icon-test wenhao icon-wenhao-cls" style="font-size: 14px"></span>
+              <span style="font-size: 12px">
+                短信内容默认携带当前登录账号的账号签名下发，实际收信签名以下发结果为准（运营商通道如果存在通道签名，则消息内容携带通道签名，而非账号签名）
+              </span>
+            </div>
+            <div class="item-box color-green border-green">
+              <pre class="text-pre">{{ tpl.map.content.value }}</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- 短链新增 -->
+        <icc-shorturl-detail *ngIf="tpl.map.requireShortUrl?.value" [tplMap]="tpl.map" [viewType]="operate['add']"></icc-shorturl-detail>
+
+        <div class="condition-wrapper" *ngIf="tpl.useTmplMethod !== 2">
+          <div class="item" *ngIf="tpl.map.isDefault.value">
+            <label class="item-name color-green">默认执行：</label>
+            <div class="item-value">
+              <label nz-checkbox [(ngModel)]="tpl.map.isDefault.value" disabled>
+                <span class="color-green">
+                  {{ tpl.map.isDefault.value ? "是" : "否" }}
+                </span>
+              </label>
+            </div>
+          </div>
+          <div class="item" *ngIf="!tpl.map.isDefault.value">
+            <label class="item-name color-green">执行条件：</label>
+            <div class="item-value" style="width: 75%">
+              <icc-condition-table-audit [config]="tableConfig" [tableData]="tpl.map.conditions.list" [openEffect]="openEffect"></icc-condition-table-audit>
+            </div>
+          </div>
+          <div class="item" *ngIf="!tpl.map.isDefault.value && isRealConditionsOverOne(tpl.map.conditions.list)">
+            <label class="item-name color-green">逻辑关系：</label>
+            <div class="item-value">
+              <label nz-radio [ngModel]="true" class="color-green">
+                {{ relationTypes[tpl.map.operateType.value] }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <nz-divider *ngIf="i < tplList.length - 1" nzDashed="true"></nz-divider>
+      </ng-container>
+      <!--未修改的模板 || 未打开修改标记 -->
+      <ng-container *ngIf="(!openEffect && tpl.type !== operate['delete']) || (openEffect && tpl.type === operate['normal'])">
+        <div class="item">
+          <label class="item-name">模板名称：</label>
+          <div class="item-value">
+            <span>{{ tpl.map.name.value }}</span>
+          </div>
+        </div>
+        <div class="item" *ngIf="useTmplMethod !== 2">
+          <label class="item-name">优先级：</label>
+          <div class="item-value">
+            <span>{{ tpl.map.priority.value }}</span>
+          </div>
+        </div>
+        <div class="item">
+          <label class="item-name">应用状态：</label>
+          <div class="item-value">
+            <span>{{ tpl.map.state.value ? "启用" : "停用" }}</span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name">M消息模板名称：</label>
+          <div class="item-value">
+            <span>{{ tpl.map.aimTplName?.value }}</span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name">M消息模板ID：</label>
+          <div class="item-value">
+            <span>{{ tpl.map.aimTplId?.value }}</span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name">M消息链接：</label>
+          <div class="item-value">
+            <span>{{ tpl.map.aimUrl?.value }}</span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name">M消息模板：</label>
+          <div style="padding-bottom: 20px">
+            <icc-template-aim-view [resolveSuccess]="true" [tplId]="tpl.map.aimTplId?.value" [showTip]="'解析成功预览'"></icc-template-aim-view>
+          </div>
+        </div>
+        <div class="item">
+          <label class="item-name">{{ isAim ? "短信原文：" : "模板内容：" }}</label>
+          <div style="width: 100%">
+            <!-- 短信签名 start -->
+            <div class="signature-wrapper">短信签名:【{{ signature }}】</div>
+            <div class="sms-sign-tip" style="width: 75%">
+              <span class="iconfont icon-icon-test wenhao icon-wenhao-cls" style="font-size: 14px"></span>
+              <span style="font-size: 12px">
+                短信内容默认携带当前登录账号的账号签名下发，实际收信签名以下发结果为准（运营商通道如果存在通道签名，则消息内容携带通道签名，而非账号签名）
+              </span>
+            </div>
+            <div class="item-box">
+              <pre class="text-pre">{{ tpl.map.content.value }}</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- 短链不变 -->
+        <icc-shorturl-detail *ngIf="tpl.map.requireShortUrl?.value" [tplMap]="tpl.map" [viewType]="operate['normal']"></icc-shorturl-detail>
+
+        <div class="condition-wrapper" *ngIf="tpl.useTmplMethod !== 2">
+          <div class="item" *ngIf="tpl.map.isDefault.value">
+            <label class="item-name">默认执行：</label>
+            <div class="item-value">
+              <label nz-checkbox [(ngModel)]="tpl.map.isDefault.value" disabled>
+                <span>{{ tpl.map.isDefault.value ? "是" : "否" }}</span>
+              </label>
+            </div>
+          </div>
+          <div class="item" *ngIf="!tpl.map.isDefault.value">
+            <label class="item-name">执行条件：</label>
+            <div class="item-value" style="width: 75%">
+              <icc-condition-table-audit [config]="tableConfig" [tableData]="tpl.map.conditions.list" [openEffect]="openEffect"></icc-condition-table-audit>
+            </div>
+          </div>
+          <div class="item" *ngIf="!tpl.map.isDefault.value && isRealConditionsOverOne(tpl.map.conditions.list)">
+            <label class="item-name">逻辑关系：</label>
+            <div class="item-value">
+              <label nz-radio [ngModel]="true">
+                {{ relationTypes[tpl.map.operateType.value] }}
+              </label>
+            </div>
+          </div>
+        </div>
+        <nz-divider *ngIf="i < tplList.length - 1" nzDashed="true"></nz-divider>
+      </ng-container>
+      <!--删除的模板 -->
+      <ng-container *ngIf="openEffect && tpl.type === operate['delete']">
+        <div class="item">
+          <label class="item-name">模板名称：</label>
+          <div class="item-value">
+            <span [ngClass]="{ 'delete-line': !isDelete }">{{ tpl.map.name.oldValue }}</span>
+          </div>
+        </div>
+        <div class="item" *ngIf="useTmplMethod !== 2">
+          <label class="item-name">优先级：</label>
+          <div class="item-value">
+            <span [ngClass]="{ 'delete-line': !isDelete }">{{ tpl.map.priority.oldValue }}</span>
+          </div>
+        </div>
+        <div class="item">
+          <label class="item-name">应用状态：</label>
+          <div class="item-value">
+            <span [ngClass]="{ 'delete-line': !isDelete }">
+              {{ tpl.map.state.oldValue ? "启用" : "停用" }}
+            </span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name">M消息模板名称：</label>
+          <div class="item-value">
+            <span [ngClass]="{ 'delete-line': !isDelete }">
+              <span>{{ tpl.map.aimTplName?.oldValue || "-" }}</span>
+            </span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name">M消息模板ID：</label>
+          <div class="item-value">
+            <span [ngClass]="{ 'delete-line': !isDelete }">{{ tpl.map.aimTplId?.oldValue || "-" }}</span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name">M消息链接：</label>
+          <div class="item-value">
+            <span [ngClass]="{ 'delete-line': !isDelete }">{{ tpl.map.aimUrl?.oldValue || "-" }}</span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name">M消息模板：</label>
+          <div class="item-box" style="padding-bottom: 40px" [ngClass]="{ 'delete-line': !isDelete }">
+            <!-- 解析成功预览 -->
+            <icc-template-aim-view [resolveSuccess]="true" [tplId]="tpl.map.aimTplId?.oldValue" [showTip]="'解析成功预览'"></icc-template-aim-view>
+          </div>
+        </div>
+        <div class="item">
+          <label class="item-name">{{ isAim ? "短信原文：" : "模板内容：" }}</label>
+          <div style="width: 100%">
+            <!-- 短信签名 start -->
+            <div class="signature-wrapper">短信签名:【{{ signature }}】</div>
+            <div class="sms-sign-tip" style="width: 75%">
+              <span class="iconfont icon-icon-test wenhao icon-wenhao-cls" style="font-size: 14px"></span>
+              <span style="font-size: 12px">
+                短信内容默认携带当前登录账号的账号签名下发，实际收信签名以下发结果为准（运营商通道如果存在通道签名，则消息内容携带通道签名，而非账号签名）
+              </span>
+            </div>
+            <div class="item-box" [ngClass]="{ 'delete-line': !isDelete }">
+              <pre class="text-pre">{{ tpl.map.content.oldValue }}</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- 短链删除 -->
+        <icc-shorturl-detail
+          *ngIf="tpl.map.requireShortUrl?.oldValue"
+          [tplMap]="tpl.map"
+          [viewType]="operate['delete']"
+          [isDelete]="isDelete"
+        ></icc-shorturl-detail>
+
+        <div class="condition-wrapper" *ngIf="tpl.useTmplMethod !== 2">
+          <div class="item" *ngIf="tpl.map.isDefault.oldValue">
+            <label class="item-name">默认执行：</label>
+            <div class="item-value">
+              <label [ngClass]="{ 'delete-line': !isDelete }" nz-checkbox [(ngModel)]="tpl.map.isDefault.oldValue" disabled>
+                <span class="color-default">
+                  {{ tpl.map.isDefault.oldValue ? "是" : "否" }}
+                </span>
+              </label>
+            </div>
+          </div>
+          <div class="item" *ngIf="!tpl.map.isDefault.oldValue">
+            <label class="item-name">执行条件：</label>
+            <div class="item-value" style="width: 75%">
+              <icc-condition-table-audit
+                [config]="tableConfig"
+                [tableData]="tpl.map.conditions.list"
+                [openEffect]="openEffect"
+                [isDelete]="isDelete"
+              ></icc-condition-table-audit>
+            </div>
+          </div>
+          <div class="item" *ngIf="!tpl.map.isDefault.oldValue && isRealConditionsOverOne(tpl.map.conditions.list)">
+            <label class="item-name">逻辑关系：</label>
+            <div class="item-value">
+              <label nz-radio [ngModel]="true" [ngClass]="{ 'delete-line': !isDelete }">
+                {{ relationTypes[tpl.map.operateType.oldValue] }}
+              </label>
+            </div>
+          </div>
+          <div class="item" *ngIf="!tpl.map.isDefault.oldValue && tpl.map.conditions.list.length > 1 && isDelete">
+            <label class="item-name">逻辑关系：</label>
+            <div class="item-value">
+              <label nz-radio [ngModel]="true">
+                {{ relationTypes[tpl.map.operateType.oldValue] }}
+              </label>
+            </div>
+          </div>
+        </div>
+        <nz-divider *ngIf="i < tplList.length - 1" nzDashed="true"></nz-divider>
+      </ng-container>
+      <!-- 存在修改的模板 -->
+      <ng-container *ngIf="openEffect && tpl.type === operate['update']">
+        <div class="item">
+          <label class="item-name">模板名称：</label>
+          <div class="item-value">
+            <span *ngIf="tpl.map.name.type === operate.normal">
+              {{ tpl.map.name.value }}
+            </span>
+            <span *ngIf="tpl.map.name.type === operate.update" class="color-red" [nzTooltipTitle]="tpl.map.name.oldValue" nz-tooltip>
+              {{ tpl.map.name.value }}
+            </span>
+          </div>
+        </div>
+        <div class="item" *ngIf="useTmplMethod !== 2">
+          <label class="item-name">优先级：</label>
+          <div class="item-value">
+            <span *ngIf="tpl.map.priority.type === operate.normal">
+              {{ tpl.map.priority.value }}
+            </span>
+            <span *ngIf="tpl.map.priority.type === operate.update" class="color-red" [nzTooltipTitle]="tpl.map.priority.oldValue" nz-tooltip>
+              {{ tpl.map.priority.value }}
+            </span>
+          </div>
+        </div>
+        <div class="item">
+          <label class="item-name">应用状态：</label>
+          <div class="item-value">
+            <span *ngIf="tpl.map.state.type === operate.normal">
+              {{ tpl.map.state.value ? "启用" : "停用" }}
+            </span>
+            <span *ngIf="tpl.map.state.type === operate.update" class="color-red" [nzTooltipTitle]="tpl.map.state.oldValue ? '启用' : '停用'" nz-tooltip>
+              {{ tpl.map.state.value ? "启用" : "停用" }}
+            </span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name">M消息模板名称：</label>
+          <div class="item-value">
+            <span *ngIf="tpl.map.aimTplName?.type === operate.normal">
+              {{ tpl.map.aimTplName?.value || "-" }}
+            </span>
+            <span *ngIf="tpl.map.aimTplName?.type === operate.update" class="color-red" [nzTooltipTitle]="tpl.map?.aimTplName?.oldValue || '-'" nz-tooltip>
+              {{ tpl.map.aimTplName?.value || "-" }}
+            </span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name">M消息模板ID：</label>
+          <div class="item-value">
+            <span *ngIf="tpl.map.aimTplId?.type === operate.normal">
+              {{ tpl.map.aimTplId?.value || "-" }}
+            </span>
+            <span *ngIf="tpl.map.aimTplId?.type === operate.update" class="color-red" [nzTooltipTitle]="tpl.map?.aimTplId?.oldValue || '-'" nz-tooltip>
+              {{ tpl.map.aimTplId?.value || "-" }}
+            </span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name">M消息链接：</label>
+          <div class="item-value">
+            <span *ngIf="tpl.map.aimUrl?.type === operate.normal">
+              {{ tpl.map.aimUrl?.value || "-" }}
+            </span>
+            <span *ngIf="tpl.map.aimUrl?.type === operate.update" class="color-red" [nzTooltipTitle]="tpl.map?.aimUrl?.oldValue || '-'" nz-tooltip>
+              {{ tpl.map.aimUrl?.value || "-" }}
+            </span>
+          </div>
+        </div>
+        <div class="item" *ngIf="isAim">
+          <label class="item-name">M消息模板：</label>
+          <div class="item-box auto-box" style="padding-bottom: 40px" *ngIf="tpl.map.aimTplId?.type === operate.normal">
+            <!-- 解析成功预览 -->
+            <icc-template-aim-view [resolveSuccess]="true" [tplId]="tpl.map.aimTplId?.value" [showTip]="'解析成功预览'"></icc-template-aim-view>
+          </div>
+          <div
+            class="item-box auto-box border-red"
+            style="padding-bottom: 40px"
+            *ngIf="tpl.map.aimTplId?.type === operate.update"
+            nz-popover
+            [nzPopoverContent]="contentTemplate"
+            nzPopoverPlacement="right"
+          >
+            <!-- 解析成功预览 -->
+            <icc-template-aim-view [resolveSuccess]="true" [tplId]="tpl.map.aimTplId?.value" [showTip]="'解析成功预览'"></icc-template-aim-view>
+          </div>
+          <ng-template #contentTemplate>
+            <!-- 解析成功预览 -->
+            <icc-template-aim-view
+              *ngIf="tpl.map.aimTplId?.type === operate.update"
+              [resolveSuccess]="true"
+              [tplId]="tpl.map.aimTplId?.oldValue"
+              [showTip]="'解析成功预览'"
+            ></icc-template-aim-view>
+          </ng-template>
+        </div>
+        <div class="item">
+          <label class="item-name">{{ isAim ? "短信原文：" : "模板内容：" }}</label>
+          <div style="width: 100%">
+            <!-- 短信签名 start -->
+            <div class="signature-wrapper">短信签名:【{{ signature }}】</div>
+            <div class="sms-sign-tip" style="width: 75%">
+              <span class="iconfont icon-icon-test wenhao icon-wenhao-cls" style="font-size: 14px"></span>
+              <span style="font-size: 12px">
+                短信内容默认携带当前登录账号的账号签名下发，实际收信签名以下发结果为准（运营商通道如果存在通道签名，则消息内容携带通道签名，而非账号签名）
+              </span>
+            </div>
+            <div class="item-box">
+              <span *ngIf="tpl.map.content.type === operate.normal">
+                <pre class="text-pre">{{ tpl.map.content.value }}</pre>
+              </span>
+              <span *ngIf="tpl.map.content.type === operate.update" class="color-red" [nzTooltipTitle]="tpl.map.content.oldValue" nz-tooltip>
+                <pre class="text-pre">{{ tpl.map.content.value }}</pre>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 短链-无法判断状态 -->
+        <icc-shorturl-detail *ngIf="tpl.map.requireShortUrl?.value || tpl.map.requireShortUrl?.oldValue" [tplMap]="tpl.map"></icc-shorturl-detail>
+
+        <div class="condition-wrapper" *ngIf="tpl.useTmplMethod !== 2">
+          <div class="item">
+            <label class="item-name">默认执行：</label>
+            <div class="item-value">
+              <label
+                nz-checkbox
+                [(ngModel)]="tpl.map.isDefault.value"
+                [ngClass]="{
+                  'delete-line': tpl.map.isDefault.type === operate['delete'] && !isDelete
+                }"
+                disabled
+              >
+                <span *ngIf="tpl.map.isDefault.type !== operate['update']" class="color-default">
+                  {{ tpl.map.isDefault.value ? "是" : "否" }}
+                </span>
+                <span
+                  *ngIf="tpl.map.isDefault.type === operate['update']"
+                  class="color-red"
+                  [nzTooltipTitle]="tpl.map.isDefault.oldValue ? '是' : '否'"
+                  nz-tooltip
+                >
+                  {{ tpl.map.isDefault.value ? "是" : "否" }}
+                </span>
+              </label>
+            </div>
+          </div>
+          <div class="item" *ngIf="!(tpl.map.isDefault.type === operate['normal'] && tpl.map.isDefault.value)">
+            <label class="item-name">执行条件：</label>
+            <div class="item-value" style="width: 75%">
+              <icc-condition-table-audit [config]="tableConfig" [tableData]="tpl.map.conditions.list" [openEffect]="openEffect"></icc-condition-table-audit>
+            </div>
+          </div>
+          <div
+            class="item"
+            *ngIf="!(tpl.map.isDefault.type === operate['normal'] && tpl.map.isDefault.value) && isRealConditionsOverOne(tpl.map.conditions.list)"
+          >
+            <label class="item-name">逻辑关系：</label>
+            <div class="item-value">
+              <label
+                nz-radio
+                [ngModel]="true"
+                *ngIf="tpl.map.operateType.type !== operate['update']"
+                [ngClass]="{
+                  'delete-line': tpl.map.operateType.type === operate['delete'] && !isDelete,
+                  'color-green': tpl.map.operateType.type === operate['add']
+                }"
+              >
+                {{ relationTypes[tpl.map.operateType.value] }}
+              </label>
+              <label
+                nz-radio
+                [ngModel]="true"
+                *ngIf="tpl.map.operateType.type === operate['update']"
+                class="color-red"
+                [nzTooltipTitle]="relationTypes[tpl.map.operateType.oldValue]"
+                nz-tooltip
+              >
+                {{ relationTypes[tpl.map.operateType.value] }}
+              </label>
+            </div>
+          </div>
+        </div>
+        <nz-divider *ngIf="i < tplList.length - 1" nzDashed="true"></nz-divider>
+      </ng-container>
+    </ng-container>
+  </div>
+</section>

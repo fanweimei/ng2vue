@@ -1,0 +1,14 @@
+<div class="icc-selected" *ngIf="show">
+  <a class="flex-center info">
+    <img *ngIf="iconImg" [src]="iconImg" alt="" />
+    <icc-table-text *ngIf="text" [text]="text" style="max-width: 100px; text-align: start"></icc-table-text>
+    <span *ngIf="count > 0">
+      (
+      <span class="count-text">{{ count }}</span>
+      )
+    </span>
+  </a>
+  <span class="flex-center operate">
+    <img class="img-delete" [src]="deleteImg" alt="" (click)="handleDelClick()" (mouseover)="handleDelOver()" (mouseleave)="handleDelLeave()" />
+  </span>
+</div>

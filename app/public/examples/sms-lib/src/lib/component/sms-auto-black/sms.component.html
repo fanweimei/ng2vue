@@ -1,0 +1,200 @@
+<!-- <div class="wrapper">
+  <div class="table-outter-box">
+    <nz-card [nzBordered]="false">
+      <form nz-form [nzLayout]="'inline'" class="search__form">
+        <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+          <div nz-col nzMd="8" nzSm="24">
+            <nz-form-item>
+              <nz-form-label nzSpan="6">黑名单类型</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-select
+                  [(ngModel)]="searchOptions.keywordTypes.select"
+                  name="keywordType"
+                  [nzPlaceHolder]="'请选择关键字类型'"
+                  [nzShowSearch]="true"
+                  (ngModelChange)="keywordTypeChange($event)"
+                >
+                  <nz-option
+                    *ngFor="let keywordType of searchOptions.keywordTypes.list; let idx = index"
+                    [nzLabel]="keywordType.label"
+                    [nzValue]="keywordType.value"
+                  ></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24">
+            <nz-form-item>
+              <nz-form-label nzSpan="6" nzFor="keyword">关键字</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <input nz-input [(ngModel)]="searchOptions.keyword" name="keyword" placeholder="请输入关键字" maxlength="10" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+            <nz-form-item>
+              <nz-form-label nzSpan="6" nzFor="dateRange">
+                <span style="display: inline-block; width: 70px">更新时间</span>
+              </nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-range-picker extend
+                  name="date"
+                  [(ngModel)]="searchOptions.startDate"
+                  [(ngModelEnd)]="searchOptions.endDate"
+                  [nzShowTime]="false"
+                  [nzAllowClear]="false"
+                  [ngModelOptions]="{ standalone: true }"
+                  (nzOnOpenChange)="onOkDate()"
+                ></nz-range-picker>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24" *ngIf="searchOptions.keywordTypes.select == 0 && expandForm">
+            <nz-form-item>
+              <nz-form-label nzSpan="6">关联账号</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-select
+                  [(ngModel)]="searchAccount"
+                  nzPlaceHolder="请选择"
+                  [nzShowSearch]="true"
+                  name="linkedAccount"
+                  (nzOnSearch)="searchAccounts($event)"
+                  nzAllowClear
+                >
+                  <ng-container *ngFor="let option of linkedAccounts; let idx = index">
+                    <nz-option *ngIf="idx < 10" [nzValue]="option.id" [nzLabel]="option.account">
+                      {{ option.label }}
+                    </nz-option>
+                  </ng-container>
+                </nz-select>
+                <ng-template #omittedPlaceHolder let-omittedValues>and {{ omittedValues.length }} 个...</ng-template>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24" *ngIf="searchOptions.keywordTypes.select == 2 && expandForm">
+            <nz-form-item>
+              <nz-form-label nzSpan="6">响应业务模板</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-select
+                  [(ngModel)]="searchBizType"
+                  nzPlaceHolder="请选择"
+                  [nzShowSearch]="true"
+                  name="linkedBizType"
+                  (nzOnSearch)="searchBizTypes($event)"
+                  nzAllowClear
+                >
+                  <ng-container *ngFor="let option of linkedBizTypes; let idx = index">
+                    <nz-option *ngIf="idx < 10" [nzValue]="option.id" [nzLabel]="option.name">
+                      {{ option.label }}
+                    </nz-option>
+                  </ng-container>
+                </nz-select>
+                <ng-template #omittedPlaceHolder let-omittedValues>and {{ omittedValues.length }} 个...</ng-template>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col nzMd="8" nzSm="24" *ngIf="searchOptions.keywordTypes.select == 3 && expandForm">
+            <nz-form-item>
+              <nz-form-label nzSpan="6">关联渠道</nz-form-label>
+              <nz-form-control nzSpan="18">
+                <nz-select
+                  [(ngModel)]="searchChannel"
+                  nzPlaceHolder="请选择"
+                  [nzShowSearch]="true"
+                  name="linkedChannel"
+                  (nzOnSearch)="searchChannels($event)"
+                  nzAllowClear
+                >
+                  <ng-container *ngFor="let option of linkedChannels; let idx = index">
+                    <nz-option *ngIf="idx < 10" [nzValue]="option.id" [nzLabel]="option.name">
+                      {{ option.label }}
+                    </nz-option>
+                  </ng-container>
+                </nz-select>
+                <ng-template #omittedPlaceHolder let-omittedValues>and {{ omittedValues.length }} 个...</ng-template>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div
+            nz-col
+            [nzSpan]="expandForm ? 24 : 8"
+            [class.text-right]="expandForm"
+            [ngStyle]="{
+              'justify-content': expandForm ? 'flex-end' : 'flex-start'
+            }"
+            class="search-btns"
+          >
+            <icc-button [btnType]="'default'" (btnClick)="getTableList()">
+              <span>查询</span>
+            </icc-button>
+            <icc-button [btnType]="'hollow'" (btnClick)="resetTableList()">
+              <span>重置</span>
+            </icc-button>
+            <a class="expand-box" (click)="expandForm = !expandForm">
+              {{ expandForm ? "收起" : "展开" }}
+              <i nz-icon [nzType]="expandForm ? 'caret-up' : 'caret-down'"></i>
+            </a>
+          </div>
+        </div>
+      </form>
+      <icc-button [btnType]="'default'" (btnClick)="add()" acl [acl-ability]="'autoBlacklist.sms.add'">
+        <img src="./assets/images/btnIcon/btn_add_white.png" alt="" />
+        <span>新增</span>
+      </icc-button>
+      <icc-button [btnType]="'danger'" (btnClick)="showModal('', true)" acl [acl-ability]="'autoBlacklist.sms.delete'">
+        <img src="./assets/images/btnIcon/btn_remove_white.png" alt="" />
+        <span>删除</span>
+      </icc-button>
+      <div class="my-md">
+        <nz-alert [nzType]="'info'" [nzShowIcon]="true" [nzMessage]="message">
+          <ng-template #message>
+            已选择
+            <strong class="text-primary">{{ selectedRows.length }}</strong>
+            项
+          </ng-template>
+        </nz-alert>
+      </div>
+      <st [page]="{}"
+        #st
+        [widthMode]="{ type: 'strict' }"
+        [scroll]="{ x: '1400px' }"
+        [data]="url"
+        [columns]="columns"
+        [res]="res"
+        [req]="req"
+        [page]="page"
+        [noResult]="noResultRef"
+        (change)="stChange($event)"
+      >
+        <ng-template #noResultRef>
+          <div class="st-empty-box">
+            <img src="./assets/images/nothing/search.png" alt="" />
+            <p class="empty-text">抱歉，查询无此数据</p>
+          </div>
+        </ng-template>
+        <ng-template st-row="msgTypeTpl" let-item let-index="index">
+          {{ item.autoMatchExtConfigs[0].msgType }}
+        </ng-template>
+        <ng-template st-row="templ-channelName" let-item let-index="index">
+          <icc-table-text [text]="item.channelName == null || item.channelName.length == 0 ? '-' : item.channelName" [width]="120"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="templ-account" let-item let-index="index">
+          <icc-table-text [text]="item.userAccount == null || item.userAccount.length == 0 ? '-' : item.userAccount" [width]="100"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="templ-businessName" let-item let-index="index">
+          <icc-table-text [text]="item.businessName == null || item.businessName.length == 0 ? '-' : item.businessName" [width]="120"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="keywordTpl" let-item let-index="index">
+          <icc-table-text [text]="item.autoMatchExtConfigs[0].content || '-'" [width]="120"></icc-table-text>
+        </ng-template>
+        <ng-template st-row="contentTpl" let-item let-index="index">
+          <icc-table-text [color]="'#1890ff'" [text]="parseReplyContent(item)" (textclick)="showContentDialog(item)" [width]="200"></icc-table-text>
+        </ng-template>
+      </st>
+    </nz-card>
+  </div>
+</div>
+
+<nz-modal [(nzVisible)]="isContentDialogVisible" nzTitle="回复内容" (nzOnCancel)="handleContentDialogCancelAndOk()" [nzFooter]="null">
+  <p *nzModalContent>{{ replyContent }}</p>
+</nz-modal> -->

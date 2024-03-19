@@ -1,0 +1,262 @@
+<div class="icc-page-inner-header">
+  <ng-container *ngIf="!id">
+    <icc-button [btnType]="'hollow'" (btnClick)="close()">
+      <span>返回</span>
+    </icc-button>
+    <span class="title-name">新增</span>
+  </ng-container>
+  <ng-container *ngIf="id">
+    <icc-button [btnType]="'hollow'" (btnClick)="close()">
+      <span>返回</span>
+    </icc-button>
+    <span class="title-name">{{ name }}</span>
+  </ng-container>
+</div>
+<nz-card [nzBordered]="false">
+  <form nz-form [formGroup]="form" se-container="2" labelWidth="230">
+    <p class="form-section-title">基础信息</p>
+    <input hidden formControlName="id" />
+    <se class="control-nzselect" label="渠道商" error="请选择渠道商" required col="1">
+      <nz-select [nzDisabled]="checkDisable" nzPlaceHolder="请选择渠道商" formControlName="providerId">
+        <nz-option *ngFor="let option of channelList" [nzValue]="option.id" [nzLabel]="option.name"></nz-option>
+      </nz-select>
+    </se>
+    <se label="渠道名称（通道名称）" error="请输入不包含空格的渠道名称!" required col="2">
+      <input
+        [readonly]="checkDisable"
+        [disabled]="checkDisable"
+        (ngModelChange)="ngNameChange()"
+        nz-input
+        minLength="1"
+        maxLength="30"
+        formControlName="name"
+        placeholder="请输入渠道名称"
+      />
+      <span [hidden]="nameHid" style="color: red">渠道名称已存在!</span>
+    </se>
+
+    <se label="渠道号（通道号）" error="请输入0-9数字组成渠道号" required col="2">
+      <input nz-input (input)="ngChannelNumChange($event)" formControlName="channelNum" placeholder="请输入渠道号" minLength="1" maxLength="20" />
+    </se>
+    <input formControlName="hidNameControl" hidden required />
+    <input formControlName="hidControl" hidden required />
+    <se label="所属运营商" error="请选择运营商" required col="2">
+      <nz-select [nzDisabled]="checkDisable" nzPlaceHolder="请选择" formControlName="carrierId">
+        <nz-option nzLabel="移动" nzValue="1"></nz-option>
+        <nz-option nzLabel="联通" nzValue="2"></nz-option>
+        <nz-option nzLabel="电信" nzValue="3"></nz-option>
+      </nz-select>
+    </se>
+    <se label="所属地区" error="请选择地区" required col="2">
+      <div>
+        <nz-select
+          style="width: 45%"
+          [nzDisabled]="checkDisable"
+          class="selectC"
+          nzPlaceHolder="请选择"
+          formControlName="parentRegionId"
+          (ngModelChange)="parentRegionChange($event)"
+        >
+          <nz-option nzValue="-1" nzLabel="请选择"></nz-option>
+          <nz-option *ngFor="let option of ParentRegionList" [nzValue]="option.id" [nzLabel]="option.name"></nz-option>
+        </nz-select>
+        <nz-select style="width: 45%" [nzDisabled]="checkDisable" class="selectC" nzPlaceHolder="请选择" formControlName="regionId">
+          <nz-option nzValue="-1" nzLabel="请选择"></nz-option>
+          <nz-option *ngFor="let option of regionList" [nzValue]="option.id" [nzLabel]="option.name"></nz-option>
+        </nz-select>
+      </div>
+    </se>
+    <se label="运营商地址" required col="2" error="请输入正确的IP地址或URL" style="height: 40px">
+      <input maxLength="100" nz-input formControlName="hostname" placeholder="请输入运营商IP地址或URL" />
+    </se>
+    <se label="运营商端口" error="只能输入0-65535之间的整数" required col="2">
+      <input nz-input formControlName="port" placeholder="请输入运营商端口" minlength="1" maxlength="5" />
+    </se>
+    <se label="可发送信息类型" required col="2">
+      <input type="hidden" nz-input formControlName="msgTypes" name="msgTypes" />
+      <nz-checkbox-wrapper style="width: 100%" ngDefaultControl (nzOnChange)="checkedBoxChange($event)">
+        <div nz-row>
+          <div nz-col nzSpan="8">
+            <label
+              nz-checkbox
+              nzValue="1"
+              [ngModelOptions]="{ standalone: true }"
+              [(ngModel)]="normalSms"
+              (ngModelChange)="normalSmsChange()"
+              [nzDisabled]="true"
+            >
+              普通短信
+            </label>
+          </div>
+          <div nz-col nzSpan="8">
+            <label nz-checkbox nzValue="2" [ngModelOptions]="{ standalone: true }" [(ngModel)]="longSms" (ngModelChange)="longSmsChange()">长短信</label>
+          </div>
+        </div>
+      </nz-checkbox-wrapper>
+    </se>
+    <se label="是否支持状态报告" error="请选择是否支持状态报告" required col="2">
+      <nz-select nzPlaceHolder="请选择" formControlName="supportStateReport">
+        <nz-option nzValue="false" nzLabel="否"></nz-option>
+        <nz-option nzValue="true" nzLabel="是"></nz-option>
+      </nz-select>
+    </se>
+    <se label="是否支持上行" error="请选择是否支持上行" required col="2">
+      <nz-select nzPlaceHolder="请选择" formControlName="supportMo">
+        <nz-option nzValue="false" nzLabel="否"></nz-option>
+        <nz-option nzValue="true" nzLabel="是"></nz-option>
+      </nz-select>
+    </se>
+    <se label="可发送运营商" error="请选择可发送运营商" required col="2">
+      <nz-select (ngModelChange)="checkBizType($event)" nzPlaceHolder="请选择" formControlName="carriers" nzMode="multiple">
+        <nz-option *ngFor="let option of carrierList" [nzValue]="option.id" [nzLabel]="option.label"></nz-option>
+      </nz-select>
+      <span [hidden]="bizTypeBindHid" style="color: red">需要解除与业务模板关系后，方可取消勾选。</span>
+    </se>
+    <se label="运营商企业代码" error="请输入英文或数字组成的运营商企业代码" col="2">
+      <input nz-input formControlName="corpID" placeholder="请输入运营商企业代码" maxlength="20" />
+    </se>
+    <se label="业务代码" error="请输入英文或数字组成的业务代码" col="2">
+      <input nz-input formControlName="serviceID" placeholder="请输入业务代码" maxlength="20" />
+    </se>
+    <se label="可发送省份" error="请选择可发送省份" required col="2" controlClass="province">
+      <div style="display: flex; justify-content: flex-start; align-items: center">
+        <label
+          nz-checkbox
+          [(ngModel)]="supportAllProvinces"
+          formControlName="supportAllProvinces"
+          (ngModelChange)="supportProvinceChange($event)"
+          style="width: 70px"
+        >
+          全国
+        </label>
+        <nz-select
+          nzPlaceHolder="请选择省份"
+          formControlName="supportProvincesList"
+          style="flex: 1"
+          nzMode="multiple"
+          [nzDisabled]="supportAllProvinces"
+          (ngModelChange)="provinceChange($event)"
+        >
+          <nz-option *ngFor="let item of ParentRegionList" [nzValue]="item.id" [nzLabel]="item.name"></nz-option>
+        </nz-select>
+      </div>
+    </se>
+    <p class="form-section-title">配置信息</p>
+    <se label="渠道账号" error="请输入正确的渠道账号" required col="2">
+      <input nz-input formControlName="appKey" minLength="1" maxLength="20" placeholder="请输入渠道账号" />
+    </se>
+    <se label="渠道密码" error="请输入正确的渠道密码" required col="2">
+      <input nz-input minLength="1" maxLength="20" formControlName="appSecret" placeholder="请输入渠道密码" />
+    </se>
+    <se label="渠道标识号" error="只允许输入英文及数字，且必须以英文字母开头。" required col="2">
+      <input
+        nz-input
+        [readonly]="checkDisable"
+        [disabled]="checkDisable"
+        formControlName="identity"
+        minLength="1"
+        maxLength="50"
+        (ngModelChange)="ngIdentityChange()"
+        placeholder="请输入渠道标识号"
+      />
+      <span [hidden]="identityHid" style="color: red">渠道标识号已存在!</span>
+    </se>
+    <se label="渠道协议" error="请选择渠道协议" required col="2">
+      <nz-select nzPlaceHolder="请选择" formControlName="protocolVersion">
+        <nz-option nzValue="20" nzLabel="CMPP2.0(移动)"></nz-option>
+        <nz-option nzValue="12" nzLabel="SGIP1.2(联通)"></nz-option>
+        <nz-option nzValue="48" nzLabel="SMGP3.0(电信)"></nz-option>
+        <nz-option nzValue="33" nzLabel="CMPP3.0(移动)"></nz-option>
+        <nz-option nzValue="0" nzLabel="其他协议"></nz-option>
+      </nz-select>
+    </se>
+    <se label="上行分段等待处理时间上限(分钟)" error="只允许输入0-9的数字组合" col="2">
+      <nz-input-group style="width: 100%" nzSuffix="分钟">
+        <input nz-input formControlName="moWaitTime" placeholder="请输入时间上限" minLength="1" maxLength="9" />
+      </nz-input-group>
+    </se>
+    <se label="最高发送速度(条/秒)" error="请输入由整数组成的发送速度, 最大值5000" required col="2">
+      <nz-input-group style="width: 100%" nzSuffix="条/秒">
+        <input nz-input formControlName="speed" placeholder="请输入最高发送速度" minLength="1" maxLength="4" />
+      </nz-input-group>
+    </se>
+    <se label="单条短信的最大字节长度" error="只允许输入0-9的数字组合,范围1-1000" required col="2">
+      <input nz-input formControlName="maxLength" [disabled]="checkDisable" placeholder="请输入字节长度" min="1" max="1000" />
+    </se>
+    <se label="短信切分时所需的字节空间" error="只允许输入0-9的数字组合,范围0-10" required col="2">
+      <input nz-input formControlName="extendLength" [disabled]="checkDisable" placeholder="请输入所需字节空间" min="0" max="10" />
+    </se>
+    <!-- 是否支持通道签名 -->
+    <se label="是否支持通道签名" required col="2">
+      <nz-select (ngModelChange)="supportSignatureChange($event)" nzPlaceHolder="请选择" formControlName="supportSignature">
+        <nz-option nzValue="true" nzLabel="是"></nz-option>
+        <nz-option nzValue="false" nzLabel="否"></nz-option>
+      </nz-select>
+    </se>
+    <!-- 若不支持通道签名则该项清空并置灰 -->
+    <se
+      label="通道签名"
+      col="2"
+      [error]="{
+        required: '请输入正确的通道签名',
+        hasSpecial: '请输入通道签名（不可包含【】或[] )',
+        empty: '请输入正确的通道签名'
+      }"
+      [required]="!signatureDisable"
+    >
+      <input [disabled]="signatureDisable" [readonly]="signatureDisable" nz-input formControlName="signature" maxlength="16" placeholder="请输入通道签名" />
+    </se>
+    <!-- -------------------------- -->
+
+    <se label="是否支持扩展码" required col="2">
+      <nz-select (ngModelChange)="ngModelChange($event)" nzPlaceHolder="请选择" formControlName="extend">
+        <nz-option nzValue="true" nzLabel="是"></nz-option>
+        <nz-option nzValue="false" nzLabel="否"></nz-option>
+      </nz-select>
+    </se>
+    <!-- 可扩展长度最大可输入的数字为XXX（xx的计算为20-渠道号位数。） -->
+    <se
+      #extendNumSe
+      label="可扩展长度"
+      [error]="{
+        pattern: '限制输入2位数字',
+        max: extendNumLengthMsg
+      }"
+      col="2"
+    >
+      <input nz-input formControlName="extendNumLength" maxlength="2" placeholder="请输入所需可扩展长度" />
+    </se>
+    <p class="form-section-title">参数配置</p>
+    <div nz-row class="param-config">
+      <div nz-col nzSpan="12" class="lf-pconfig">
+        <div nz-row class="line top-line">
+          <label>参数-键：</label>
+          <nz-select nzPlaceHolder="请选择" ngDefaultControl [(ngModel)]="paramKey" [ngModelOptions]="{ standalone: true }">
+            <nz-option *ngFor="let cp of paramKeyList" [nzValue]="cp.id" [nzLabel]="cp.label"></nz-option>
+          </nz-select>
+          <button nz-button class="btn btn_t1 icon_add mar_r10" type="button" (click)="paramAdd()">添加参数</button>
+        </div>
+        <div nz-row class="line">
+          <label>参数-值：</label>
+          <input class="cc" nz-input placeholder="请输入参数值" placeholder="请输入" formControlName="paramValue" minlength="1" maxlength="100" />
+          <button nz-button class="btn btn_t3 icon_delete mar_r10" type="button" (click)="paramDelAll()">清空参数</button>
+        </div>
+      </div>
+      <div nz-col nzSpan="12" style="padding-left: 40px; padding-right: 20px">
+        <div class="rt-config">
+          <nz-tag *ngFor="let item of parameters; let i = index" [nzMode]="'closeable'" (nzOnClose)="paramDel(i)">
+            {{ getParameterName(item) }}
+          </nz-tag>
+        </div>
+      </div>
+    </div>
+  </form>
+</nz-card>
+<div class="btn-group">
+  <icc-button [btnType]="'hollow'" (btnClick)="close()">
+    <span>取消</span>
+  </icc-button>
+  <icc-button (btnClick)="save(form.value)" [isDisabled]="form.invalid || isSupportProvinces">
+    <span>保存</span>
+  </icc-button>
+</div>

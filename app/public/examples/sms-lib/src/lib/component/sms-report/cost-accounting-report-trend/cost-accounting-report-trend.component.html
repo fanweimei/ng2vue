@@ -1,0 +1,163 @@
+<div class="back-wrapper">
+  <icc-button [btnType]="'hollow'" (btnClick)="goBack()">
+    <span>返回</span>
+  </icc-button>
+  <span class="title-info">
+    <span *ngIf="statType == 0">用户账号</span>
+    <span *ngIf="statType == 1">部门名称</span>
+    <span *ngIf="statType == 2">业务模板名称</span>
+    <span *ngIf="statType == 3">渠道名称</span>
+    <span>：{{ desName }}</span>
+  </span>
+</div>
+<div class="wrapper">
+  <div class="table-outter-box">
+    <nz-card [nzBordered]="false" id="tag-table-wrapper-id">
+      <div nz-form [nzLayout]="'inline'" class="search__form">
+        <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+          <div nz-col nzMd="8" nzSm="24">
+            <nz-form-item>
+              <div nz-row>
+                <div nz-col [nzSpan]="10">
+                  <icc-button [btnType]="'default'" (btnClick)="export()" acl [acl-ability]="'reportStat.costAccounting.export'">
+                    <img src="./assets/images/btnIcon/btn_export_white.png" alt="" />
+                    <span>导出</span>
+                  </icc-button>
+                </div>
+
+                <div nz-col [nzSpan]="14">
+                  <nz-radio-group [(ngModel)]="trend" (ngModelChange)="trendChange()" name="trend" nzButtonStyle="solid">
+                    <label nz-radio-button [nzValue]="0">日趋势</label>
+                    <label nz-radio-button [nzValue]="1">月趋势</label>
+                  </nz-radio-group>
+                </div>
+              </div>
+            </nz-form-item>
+          </div>
+
+          <div nz-col nzMd="8" nzSm="24" *ngIf="trend === 0">
+            <nz-form-item>
+              <nz-form-label nzFor="dateRange">提交时间</nz-form-label>
+              <nz-form-control>
+                <!--<nz-range-picker
+                  [(ngModel)]="searchOptions.dateRange"
+                  [ngModelOptions]="{ standalone: true }"
+                  nzFormat="yyyy-MM-dd"
+                  nzShowTime
+                ></nz-range-picker>-->
+                <nz-range-picker
+                  extend
+                  name="date"
+                  [(ngModel)]="searchOptions.startDate"
+                  [(ngModelEnd)]="searchOptions.endDate"
+                  [nzFormat]="'yyyy-MM-dd'"
+                  [nzDisabledDate]="disabledDate"
+                  [ngModelOptions]="{ standalone: true }"
+                  (nzOnOpenChange)="selectDate($event)"
+                  [nzAllowClear]="false"
+                ></nz-range-picker>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col nzMd="8" nzSm="24" *ngIf="trend !== 0">
+            <nz-form-item>
+              <nz-form-label nzFor="dateRange">提交时间</nz-form-label>
+              <nz-form-control>
+                <!-- <nz-range-picker
+                  [(ngModel)]="searchOptions.dateRange"
+                  [ngModelOptions]="{ standalone: true }"
+                  nzFormat="yyyy-MM"
+                  nzShowTime
+                ></nz-range-picker> -->
+                <div class="month-picker-wrapper">
+                  <nz-month-picker
+                    nzFormat="yyyy-MM"
+                    [nzDisabledDate]="disabledStartMonth"
+                    [(ngModel)]="this.searchOptions.startMonth"
+                    (ngModelChange)="onStartChange($event)"
+                    name="startMonth"
+                    [nzAllowClear]="false"
+                  ></nz-month-picker>
+                  &nbsp;~&nbsp;
+                  <nz-month-picker
+                    nzFormat="yyyy-MM"
+                    [nzDisabledDate]="disabledEndMonth"
+                    [(ngModel)]="searchOptions.endMonth"
+                    (ngModelChange)="onEndChange($event)"
+                    name="endMonth"
+                    [nzAllowClear]="false"
+                  ></nz-month-picker>
+                </div>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col nzMd="8" nzSm="24" [ngStyle]="{ 'justify-content': 'flex-end' }" class="search-btns">
+            <icc-button [btnType]="'default'" (btnClick)="getTableList()">
+              <span>查询</span>
+            </icc-button>
+            <icc-button [btnType]="'hollow'" (btnClick)="resetTableList()">
+              <span>重置</span>
+            </icc-button>
+          </div>
+        </div>
+      </div>
+    </nz-card>
+
+    <nz-card class="right-statistics">
+      <div class="chart-area">
+        <div class="line-chart">
+          <p class="chart-yAxis-name">元</p>
+          <div id="trend-chart"></div>
+        </div>
+        <div class="chart-xAxis-limit">
+          <span>{{ startTime }}</span>
+          <span>{{ endTime }}</span>
+        </div>
+      </div>
+    </nz-card>
+
+    <nz-card>
+      <st
+        [page]="{}"
+        #st
+        id="tag-table-id"
+        [widthMode]="{ type: 'strict' }"
+        [scroll]="{ x: '950px' }"
+        [data]="url"
+        [columns]="columns"
+        [res]="res"
+        [req]="req"
+        [page]="page"
+        [noResult]="noResultRef"
+      >
+        <ng-template #noResultRef>
+          <div class="st-empty-box">
+            <img src="./assets/images/nothing/search.png" alt="" />
+            <p class="empty-text">抱歉，查询无此数据</p>
+          </div>
+        </ng-template>
+      </st>
+    </nz-card>
+  </div>
+</div>
+
+<nz-modal [(nzVisible)]="isOpenExport" nzTitle="提示" (nzOnCancel)="closeExport()" [nzFooter]="modalExportFooter">
+  <ng-container *nzModalContent>
+    <p>
+      <icc-image src="./assets/images/send/export-icon.gif" style="vertical-align: middle"></icc-image>
+      <label style="margin-left: 10px">数据正在导出中。。。</label>
+    </p>
+    <p style="color: #9ea8c8">
+      您可以直接进入
+      <a (click)="goExport()">【导入/导出管理】</a>
+      界面查看结果
+    </p>
+  </ng-container>
+  <ng-template #modalExportFooter>
+    <icc-button [btnType]="'default'" (btnClick)="closeExport()">
+      <span>知道了</span>
+    </icc-button>
+  </ng-template>
+</nz-modal>

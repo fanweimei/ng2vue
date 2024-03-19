@@ -1,0 +1,105 @@
+<div class="modal-header modal-header-update">
+  <div class="modal-title">{{ operation }}自动回复</div>
+</div>
+<div class="main">
+  <form nz-form #f="ngForm" nz-form>
+    <input type="hidden" name="id" [(ngModel)]="autoReply.id" />
+    <input type="hidden" name="validateFlag" [(ngModel)]="validateFlag" required />
+    <div nz-row>
+      <div nz-col nzSpan="24">
+        <nz-form-item>
+          <nz-form-label nzRequired nzSpan="6">关键字</nz-form-label>
+          <nz-form-control nzSpan="16" nzHasFeedback [nzErrorTip]="combineTp2" [nzValidateStatus]="validate">
+            <input
+              nz-input
+              [(ngModel)]="keyword"
+              placeholder="请输入关键字"
+              name="keyword"
+              required
+              minlength="1"
+              maxlength="10"
+              pattern="^[\s\S]*.*[^\s][\s\S]*$"
+              (ngModelChange)="throttleFn()"
+              (blur)="onblur()"
+            />
+            <ng-template #combineTp2 let-control>
+              <ng-container *ngIf="(control != null && control.hasError('required')) || this.required">不能为空，且最多10个字符</ng-container>
+              <ng-container *ngIf="control != null && control.hasError('pattern')">不允许输入空内容</ng-container>
+              <ng-container *ngIf="(control != null && control.hasError('duplicated')) || this.duplicated">系统已存在相同关键字</ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzSpan="24">
+        <nz-form-item>
+          <nz-form-label nzRequired nzSpan="6">关键字类型</nz-form-label>
+          <nz-form-control nzSpan="16">
+            <nz-radio-group [(ngModel)]="isRelevance" (ngModelChange)="keywordTypeChange($event)" name="keywordType" [nzDisabled]="!!(record && record.id)">
+              <label nz-radio nzValue="a">账号关键字</label>
+              <label nz-radio nzValue="b">全局关键字</label>
+            </nz-radio-group>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzSpan="24" *ngIf="isRelevance == 'a'">
+        <nz-form-item>
+          <nz-form-label nzRequired nzSpan="6">关联账号</nz-form-label>
+          <nz-form-control nzSpan="16" nzHasFeedback [nzErrorTip]="combineTp1">
+            <nz-select
+              class="selectC"
+              nzPlaceHolder="请选择关联账号"
+              [(ngModel)]="autoReply.userId"
+              (ngModelChange)="userIdChange($event)"
+              name="userId"
+              (nzOnSearch)="searchAccount($event)"
+              [nzShowSearch]="true"
+              required
+              [nzDisabled]="autoReply.id > 0 && userId > 0"
+            >
+              <nz-option *ngFor="let option of linkedAccounts" [nzValue]="option.id" [nzLabel]="option.account">
+                {{ option.label }}
+              </nz-option>
+            </nz-select>
+            <ng-template #combineTp1 let-control>
+              <ng-container *ngIf="control.hasError('required')">该项必选</ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzSpan="24">
+        <nz-form-item>
+          <nz-form-label nzRequired nzSpan="6" nzRequired>回复内容</nz-form-label>
+          <nz-form-control nzSpan="16" nzHasFeedback [nzErrorTip]="combineTp3">
+            <textarea
+              placeholder="请输入回复内容"
+              nz-input
+              [(ngModel)]="content"
+              rows="5"
+              name="content"
+              minlength="1"
+              [maxlength]="maxlength"
+              required
+              pattern="^[\s\S]*.*[^\s][\s\S]*$"
+            ></textarea>
+            <div class="len-tip">已输入{{ content?.trim()?.length ? content?.trim()?.length : 0 }}/{{ maxlength }}</div>
+            <ng-template #combineTp3 let-control>
+              <ng-container *ngIf="control.hasError('required')">不能为空，且最多{{ maxlength }}个字符！</ng-container>
+              <ng-container *ngIf="control.hasError('pattern')">不允许输入空内容</ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer modal-footer-update">
+  <icc-button [btnType]="'hollow'" (btnClick)="close()">
+    <span>关闭</span>
+  </icc-button>
+  <icc-button [btnType]="'default'" [isDisabled]="!f.valid || (isRelevance == 'a' && autoReply.userId == 0)" [isLoading]="http.loading" (btnClick)="save()">
+    <span>保存</span>
+  </icc-button>
+</div>

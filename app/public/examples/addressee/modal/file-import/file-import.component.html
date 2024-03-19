@@ -1,0 +1,32 @@
+<div class="modal-header-update">
+  <div class="modal-title">导入</div>
+</div>
+
+<div class="main">
+  <file-upload
+    #iccupload
+    [exampleUrl]="templateFile"
+    [action]="importURL"
+    [filter]="filters"
+    [size]="104857600"
+    [customRequest]="sendFileImportCustomReq"
+    [percent]="uploadPercent"
+    [status]="hasException"
+    [hasProgress]="hasProgress"
+    [errorMsg]="errorMsg"
+    [totalCount]="totalSize"
+    [successCount]="succSize"
+    [logUrl]="stzaPath"
+    (handleChange)="handleSendImportChange($event)"
+    (remove)="removeImport($event)"
+  ></file-upload>
+</div>
+
+<div class="modal-footer modal-footer-update">
+  <icc-button [btnType]="'hollow'" (btnClick)="handleCancel()">
+    <span>取消</span>
+  </icc-button>
+  <icc-button [btnType]="'default'" [isDisabled]="!okImport" (btnClick)="handleImport()">
+    <span>确定</span>
+  </icc-button>
+</div>

@@ -1,0 +1,166 @@
+<nz-card [nzBordered]="false">
+  <form nz-form [nzLayout]="'inline'" class="search__form">
+    <div nz-row [nzGutter]="{ xs: 8, sm: 8, md: 8, lg: 24, xl: 48, xxl: 48 }">
+      <div nz-col nzMd="8" nzSm="24">
+        <nz-form-item>
+          <nz-form-label nzFor="channelNum">接收渠道号</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="searchOptions.channelNum" name="channelNum" placeholder="请输入完整的接收渠道号"
+              id="channelNum" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="8" nzSm="24">
+        <nz-form-item>
+          <nz-form-label nzFor="terminalId">上行号码</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="searchOptions.terminalId" name="terminalId" placeholder="请输入完整的上行号码"
+              id="terminalId" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="8" nzSm="24" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzFor="phone">上行时间</nz-form-label>
+          <nz-form-control>
+            <nz-range-picker extend name="date" [(ngModel)]="searchOptions.dateRange[0]"
+              [(ngModelEnd)]="searchOptions.dateRange[1]" [nzFormat]="'yyyy-MM-dd'" [nzAllowClear]="false"
+              [ngModelOptions]="{ standalone: true }" (nzOnOk)="onOkDate()"
+              (nzOnOpenChange)="onOkDate()"></nz-range-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzMd="8" nzSm="24" class="form-comp" *ngIf="expandForm">
+        <nz-form-item>
+          <nz-form-label nzFor="aging">
+            <span style="display: inline-block; width: 70px">回复状态</span>
+          </nz-form-label>
+          <nz-form-control>
+            <nz-select [(ngModel)]="searchOptions.statusList.status" name="status" [nzShowSearch]="true">
+              <nz-option *ngFor="let item of searchOptions.statusList.list; let idx = index" [nzLabel]="item.label"
+                [nzValue]="item.value"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col [nzSpan]="expandForm ? 24 : 8" [class.text-right]="expandForm" class="search-btns" [ngStyle]="{
+          'justify-content': expandForm ? 'flex-end' : 'flex-start'
+        }">
+        <icc-button [btnType]="'default'" (btnClick)="getTableList()">
+          <span>查询</span>
+        </icc-button>
+        <icc-button [btnType]="'hollow'" (btnClick)="resetTableList()">
+          <span>重置</span>
+        </icc-button>
+        <a class="expand-box" (click)="expandForm = !expandForm">
+          {{ expandForm ? "收起" : "展开" }}
+          <i nz-icon [nzType]="expandForm ? 'caret-up' : 'caret-down'"></i>
+        </a>
+      </div>
+    </div>
+  </form>
+
+  <icc-button [btnType]="'default'" (btnClick)="export()" acl [acl-ability]="'moRecord.sms.export'">
+    <img src="./assets/images/btnIcon/btn_export_white.png" alt="" />
+    <span>导出</span>
+  </icc-button>
+
+  <div class="my-md">
+    <st [page]="{}" #st [widthMode]="{ type: 'strict' }" [scroll]="{ x: '1100px' }" [data]="url"
+      (change)="stChange($event)" [columns]="columns" [noResult]="noResultRef" [req]="req" [res]="res" [page]="page">
+      <ng-template #noResultRef>
+        <div class="st-empty-box">
+          <img src="./assets/images/nothing/search.png" alt="" />
+          <p class="empty-text">抱歉，查询无此数据</p>
+        </div>
+      </ng-template>
+      <ng-template st-row="tpl-content" let-item let-index="index">
+        <a class="text-ellipsis" nzTooltipTitle="{{ item.content | parser }}" (click)="clickContent(item)"
+          nzTooltipPlacement="top" nz-tooltip>
+          {{ item.content | parser }}
+        </a>
+      </ng-template>
+      <ng-template st-row="tpl-channelNum" let-item let-index="index">
+        <icc-table-text [text]="item.channelNum" [width]="200"></icc-table-text>
+      </ng-template>
+      <ng-template st-row="tpl-reply" let-item let-index="index">
+        <icc-table-text [color]="'#1890ff'" [text]="item.replyContent" (textclick)="openReplyModal(item)"
+          [width]="118"></icc-table-text>
+      </ng-template>
+    </st>
+  </div>
+</nz-card>
+
+<nz-modal [(nzVisible)]="isOpenReplyDetail" nzTitle="回复内容" (nzOnCancel)="_handleClose()" (nzOnOk)="_handleClose()"
+  [nzFooter]="null">
+  <ng-container *nzModalContent>
+    {{ this.detailItem.content }}
+  </ng-container>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isOpenReplyDialog" nzWidth="800px" nzTitle="回复信息" [nzContent]="modalContent"
+  [nzFooter]="modalFooter" (nzOnCancel)="closeReplyDialog()">
+  <ng-template #modalContent>
+    <div style="float: right">
+      <a href="javacsript:;" acl [acl-ability]="'menu.msgRecord.timeRecord'" (click)="gotoTimeLine()">查看用户交互时光轴</a>
+    </div>
+    <br />
+    <div class="content">
+      <div>
+        <span class="offset-cls">上行内容:</span>
+        <textarea rows="4" nz-input [(ngModel)]="upContent" disabled class="textarea"></textarea>
+      </div>
+      <div style="float: right">
+        <p>{{ postTime }}</p>
+      </div>
+    </div>
+
+    <br />
+    <br />
+    <!--虚线-->
+    <hr style="border: 1px dashed gray" />
+    <br />
+    <br />
+
+    <div class="content">
+      <div>
+        <span style="color: red">*</span>
+        <span class="offset-cls">回复内容：</span>
+        <textarea rows="4" nz-input [(ngModel)]="replyContent" [maxlength]="maxlength" placeholder="请输入回复内容"></textarea>
+        <div class="len-tip">已输入{{ replyContent?.trim()?.length ? replyContent?.trim()?.length : 0 }}/{{ maxlength }}
+        </div>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template #modalFooter>
+    <icc-button [btnType]="'hollow'" (btnClick)="cancelReplyDialog()">
+      <span>取消</span>
+    </icc-button>
+    <icc-button [btnType]="'default'" [isLoading]="loading" (btnClick)="ensureReplyDialog()">
+      <span>确定</span>
+    </icc-button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isOpenExport" nzTitle="提示" (nzOnCancel)="closeExport()" [nzFooter]="modalFooter2">
+  <ng-container *nzModalContent>
+    <p>
+      <icc-image src="./assets/images/send/export-icon.gif" style="vertical-align: middle"></icc-image>
+      <label style="margin-left: 10px">数据正在导出中。。。</label>
+    </p>
+    <p style="color: #9ea8c8">
+      您可以直接进入
+      <a (click)="goExport()">【导入/导出管理】</a>
+      查看操作结果。
+    </p>
+  </ng-container>
+  <ng-template #modalFooter2>
+    <icc-button [btnType]="'default'" (btnClick)="closeExport()">
+      <span>知道了</span>
+    </icc-button>
+  </ng-template>
+</nz-modal>
+
+<ng-template #totalTemplate>
+  <nz-spin [nzSpinning]="listCountLoading" [nzSize]="'small'">共 {{ stTotal }} 条</nz-spin>
+</ng-template>

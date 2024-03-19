@@ -1,0 +1,104 @@
+:host {
+  ::ng-deep {
+    .ant-progress-text {
+      display: none;
+    }
+    .ant-progress-outer {
+      margin-right: 0 !important;
+      padding-right: 0 !important;
+    }
+    .ant-progress-inner {
+      background: rgb(220, 221, 233);
+    }
+    nz-upload {
+      cursor: pointer;
+    }
+    .warning-text {
+      color: rgba(163, 133, 57, 0.85);
+    }
+    .icc-upload {
+      padding: 0 25px;
+      .row-item {
+        line-height: 38px;
+        .item-name {
+          display: inline-block;
+          width: 70px;
+        }
+        .radio-item {
+          width: 100px;
+        }
+        .radio-item:nth-of-type(1) {
+          margin-left: 10px;
+        }
+      }
+      .upload-box {
+        width: 85%;
+        margin: 10px 0 20px 0;
+        .show-input {
+          height: 30px;
+          color: #49536e;
+          font-size: 14px;
+          background: #fff;
+        }
+      }
+      .limit-size {
+        margin-top: 8px;
+        color: #abb4cf;
+        font-size: 12px;
+      }
+      .file-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        .file-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin: 8px 0;
+          padding: 5px;
+          border-radius: 2px;
+          cursor: pointer;
+          &:hover {
+            background: rgb(240, 241, 249);
+          }
+          .left {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            i {
+              margin-right: 10px;
+              color: #4880ff;
+              font-size: 16px;
+            }
+          }
+          .right {
+            cursor: pointer;
+          }
+        }
+      }
+      .progress-box {
+        margin-bottom: 10px;
+        padding: 10px 20px;
+        font-size: 12px;
+        background: rgb(240, 241, 249);
+        border-radius: 2px;
+      }
+      .float-left {
+        float: left;
+      }
+      .float-right {
+        float: right;
+      }
+      .total-box {
+        width: 100%;
+        padding: 8px 8px 2px 8px;
+        background: rgb(240, 241, 249);
+        border-radius: 2px;
+        .content {
+          padding: 0 0 5px 42px;
+        }
+      }
+    }
+  }
+}
