@@ -5,21 +5,23 @@ import { defaultDirective } from "./default";
 import { findNodeBFS } from "@ngParse/html/util";
 import { cloneDeep } from "lodash";
 
-export function popoverDirective(item: HEleNode, attr: HAttr) {
-  const newNode = defaultDirective(item, attr, true);
-
-  let newAttrs: HAttr[] = [];
-  for (let attr of newNode.attributes) {
-    attr.key = attr.key.replace("Popover", "");
-    if (attr.key == "[(nzVisible)]") {
-      newAttrs.push({ key: "v-model:visible", value: attr.value });
-    } else {
-      commonAttrs(attr, newAttrs);
+export function getPopoProcess(popName: string, templateAttrs: string[] = ['title']) {
+  return (item: HEleNode, attr: HAttr) => {
+    const newNode = defaultDirective(item, attr, true);
+    let newAttrs: HAttr[] = [];
+    for (let attr of newNode.attributes) {
+      attr.key = attr.key.replace(popName, "");
+      if (attr.key == "[(nzVisible)]") {
+        newAttrs.push({ key: "v-model:open", value: attr.value });
+      } else {
+        commonAttrs(attr, newAttrs);
+      }
+    }
+    newNode.attributes = newAttrs;
+    for(let attr of templateAttrs) {
+      replaceTemplateAttr(attr, newAttrs, newNode);
     }
   }
-  newNode.attributes = newAttrs;
-  replaceTemplateAttr("title", newAttrs, newNode);
-  replaceTemplateAttr("content", newAttrs, newNode);
 }
 
 function replaceTemplateAttr(

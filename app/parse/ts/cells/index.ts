@@ -5,6 +5,7 @@ import { processFormBuilder, replaceFormBuilder } from "./form";
 import { processHttp } from "./http";
 import { processModalHelper, replaceModalRef } from "./modal";
 import { processNzModalService } from "./nzModal";
+import { replaceRoute } from "./route";
 import { processRouter, replaceRouter } from "./router";
 import { replaceSt } from "./st";
 
@@ -25,6 +26,7 @@ export const replaceCtorSsrv = {
   [SSrv.fb]: replaceFormBuilder,
   [SSrv.router]: replaceRouter,
   [SSrv.dialog]: replaceDialog,
+  [SSrv.route]: replaceRoute
 };
 
 // 全局替换的方法

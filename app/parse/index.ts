@@ -100,9 +100,11 @@ export class ComponentNg2Vue {
     }
     const transLess = (content: string) => {
       return content
-        .replace(/:host\s*/gi, "*")
+        .replace(/:host\s*{/gi, "*{")
+        .replace(/:host\s*/gi, "")
         .replace(/::ng-deep/gi, `${className}:deep(*)`)
         .replace(/:host\s+::ng-deep/gi, `${className}:deep(*)`)
+        .replace(/\.ant/gi, '.@{prefix}')
         .replace(/@import(.+);/, "")
         .replace(/\/assets\//g, "@icc/assets/");
     };

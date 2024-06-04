@@ -264,6 +264,7 @@ export function parseClass(tsResource: Resource, node: ClassDeclaration): void {
         classDeclaration.accessors.push(
           new SetterDeclaration(
             (o.name as Identifier).text,
+            !!(o.modifiers?.length && o.modifiers.find(e => e.getText() == '@Input()')),
             getNodeVisibility(o),
             getNodeType(o.type),
             o.modifiers !== undefined &&

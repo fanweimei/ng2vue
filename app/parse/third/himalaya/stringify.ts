@@ -8,7 +8,9 @@ export function formatAttributes(attributes) {
       return `${attrs} ${key}`;
     }
     // const quoteEscape = value.indexOf("'") !== -1;
-    value = value.replace(/"/g, `'`).replace(/\n/g, "").replace(/\r/g, "");
+    if(typeof value == "string") {
+      value = value.replace(/"/g, `'`).replace(/\n/g, "").replace(/\r/g, "");
+    }
     // const quote = quoteEscape ? '"' : "'"
     const quote = `"`;
     return `${attrs} ${key}=${quote}${value}${quote}`;

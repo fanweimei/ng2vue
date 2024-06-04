@@ -45,6 +45,10 @@ export class TsParser {
     return this.classDeclarations.decorator;
   }
 
+  get accessors() {
+    return this.classDeclarations.accessors;
+  }
+
   srv: Map<SSrv, string> = new Map();
   processCtorArr: Array<(node: Node) => SSrvResult> = [];
   replaceCtorArr: Array<(blockSource: string) => string> = [];
@@ -175,6 +179,10 @@ export class TsParser {
             `const ${item.name} = useRouter();`
           );
           break;
+        case SSrv.route:
+          this.importParser.add("useRoute", "vue-router");
+          this.importParser.useCodeMap.set(item.name, `const ${item.name} = useRoute();`);
+          break;
         case SSrv.token:
         case SSrv.iToken:
           this.importParser.add("useToken", "@icc/hooks");
@@ -182,6 +190,14 @@ export class TsParser {
             item.name,
             `const ${item.name} = useToken();`
           );
+          break;
+        case SSrv.nzMessage:
+          this.importParser.add('message', 'ant-design-vue');
+          this.importParser.useCodeMap.set(item.name, `const ${item.name} = message;`);
+          break;
+        case SSrv.eventSer:
+          this.importParser.add('useEventService', '@icc/hooks');
+          this.importParser.useCodeMap.set(item.name, `const ${item.name} = useEventService();`);
           break;
         case SSrv.fb:
         case SSrv.ufb:

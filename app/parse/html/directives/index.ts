@@ -3,7 +3,7 @@ import { autoComponentDirective } from "./cells/autocomplete";
 import { defaultDirective } from "./cells/default";
 import { dropdownDirective } from "./cells/dropdown";
 import { gridDirective } from "./cells/grid";
-import { popoverDirective } from "./cells/popover";
+import { getPopoProcess } from "./cells/popover";
 import { tooltipDirective } from "./cells/tooltip";
 import { commonDirectiveEles, wrapperDirectiveEles } from "./const";
 
@@ -14,7 +14,8 @@ export const directiveProcess = {
   "nz-tooltip": tooltipDirective,
   "nz-dropdown": dropdownDirective,
   "[nzAutocomplete]": autoComponentDirective,
-  "nz-popover": popoverDirective,
+  "nz-popover": getPopoProcess('Popover', ['title', 'content']),
+  "nz-popconfirm": getPopoProcess('Popconfirm', ['title', 'description']),
 };
 
 // 属性（指令）需要转成标签元素的

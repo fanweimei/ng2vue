@@ -6,6 +6,7 @@ import { nzFormItemAttrs } from "./cells/form-item";
 import { iconAttrs } from "./cells/icon";
 import { imgAttrs } from "./cells/img";
 import { inputGroupAttrs } from "./cells/input-group";
+import { rangepicker } from "./cells/rangepicker";
 import { seAttrs } from "./cells/se";
 import { selectAttrs } from "./cells/select";
 import { sfAttrs } from "./cells/sf";
@@ -26,6 +27,7 @@ const attributesProcess = {
   button: buttonAttrs,
   "icc-button": iccButtonAttrs,
   "nz-table": tableAttrs,
+  "nz-range-picker": rangepicker
 };
 
 export function processElementAttrs(item: HEleNode) {

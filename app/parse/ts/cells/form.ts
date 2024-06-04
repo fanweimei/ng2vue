@@ -349,14 +349,14 @@ export function processFormBuilder(ssrName: string) {
 export function replaceFormBuilder(ssrName: string) {
   return (blockSource: string): string => {
     // 处理响应式表单
-    htmlContext.htmlParser.tagCollectMap
-      .get(TagType.form)
-      .forEach((_, key: string) => {
-        blockSource = blockSource.replace(
-          new RegExp(`this.${key}.`, "g"),
-          `${key}Proxy.`
-        );
-      });
+    // htmlContext.htmlParser.tagCollectMap
+    //   .get(TagType.form)
+    //   .forEach((_, key: string) => {
+    //     blockSource = blockSource.replace(
+    //       new RegExp(`this.${key}.`, "g"),
+    //       `${key}Proxy.`
+    //     );
+    //   });
     // 前面无法解析的fb.group，直接去掉
     blockSource = blockSource.replace(new RegExp(`this.${ssrName}.group`), "");
     return blockSource;

@@ -2,6 +2,9 @@ import { htmlContext } from "./context";
 import { HAttr, HEleNode, HNode, HNodeType } from "./typings";
 import { cloneDeep } from "lodash";
 import * as strings from "../../share/strings";
+import { createSourceTree } from "@ngParse/ts/util";
+import { CallExpression, Node, ObjectLiteralExpression, SyntaxKind, isPropertyAssignment, isShorthandPropertyAssignment } from "typescript";
+import { findNodeBFS as tsFindNodeBFS } from "@ngParse/ts/util";
 
 // 是否是自定义组件的标签
 export function isCusComponent(tagName: string) {
@@ -76,11 +79,30 @@ export function isSameEmptyNode(node1: HNode, node2: HNode) {
 }
 // 将字符串转成json对象
 export function strToObj(val: string) {
-  try {
-    return eval("(" + val + ")");
-  } catch (e) {
-    // 说明是变量
-    return null;
+  if(!val.trim()?.length) {
+    return { key: 'null', value: null };
+  }
+  const root: Node = createSourceTree(`test(${val})`);
+  const callNode = tsFindNodeBFS(root, (node: Node) => node.kind === SyntaxKind.CallExpression) as CallExpression
+  switch(callNode.arguments[0].kind) {
+    case SyntaxKind.StringLiteral:
+      // 说明是字符串
+      return { key: 'string', value: val };
+    case SyntaxKind.Identifier:
+      // 说明是变量
+      return { key: 'identifier', value: val };
+    case SyntaxKind.ObjectLiteralExpression:
+      let obj: any = {};
+      for(let property of (callNode.arguments[0] as ObjectLiteralExpression).properties) {
+        if(isPropertyAssignment(property)) {
+          obj[property.name.getText()] = getStr(property.initializer.getText());
+        } else if(isShorthandPropertyAssignment(property)) {
+          obj[property.getText()] = property.getText()
+        }
+      }
+      return { key: 'obj', value: obj };
+    default: 
+      return { key: 'null', value: null };
   }
 }
 
@@ -182,4 +204,15 @@ export function isTemplateName(str: string) {
     );
   }
   return false;
+}
+
+export function getNum(str: string, defaultValue = 0) {
+  if(!str) {
+    return defaultValue;
+  }
+  return Number(str.replace(`'`, "").replace(`'`, "").replace(`"`, "").replace(`"`, "")) || defaultValue;
+}
+// 去掉字符串前后的引号
+export function getStr(str: string) {
+  return str.replace(`'`, "").replace(`'`, "").replace(`"`, "").replace(`"`, "");
 }

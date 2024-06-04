@@ -7,6 +7,9 @@ export enum VarType {
   emit = 4, // emit事件变量
   model = 5, // 需要双向数据绑定的变量
   proxy = 6,
+  computed = 7, // computed类型（对应ng中get函数）
+  watchref = 8, // 对普通ref的watch
+  watchprop = 9 // 对prop的watch
 }
 
 export interface VarItem {
@@ -45,6 +48,9 @@ export enum SSrv {
   encrypt = "EncryptService",
   token = "TokenService",
   iToken = "ITokenService",
+  nzMessage = "NzMessageService",
+  eventSer = "EventService",
+  route = "ActivatedRoute"
 }
 
 export interface SSrvResult {

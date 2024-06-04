@@ -37,7 +37,7 @@ export const emitsMap = {
  */
 export const propsMap = {
   ["*"]: {
-    optionalHelp: "help",
+    optionalHelp: "tooltip",
     nzPlaceHolder: "placeholder",
     nzFor: "htmlFor",
     nzPageIndex: "current",
@@ -68,7 +68,7 @@ export const propsMap = {
     nzAddOnBefore: "addonBefore",
   },
   "nz-modal": {
-    nzVisible: "v-model:visible",
+    nzVisible: "v-model:open",
   },
 };
 
@@ -127,7 +127,7 @@ export const needFilterAttrs = {
   "nz-upload": ["nzSize", "nzFileType", "nzFilter"],
   "nz-tree": ["nzAsyncData"],
   "nz-range-picker": ["ngModelEnd"],
-  "*": ["*nzModalContent"],
+  "*": ["*nzModalContent", "extend"],
 };
 
 export function isRemoveAttr(node: HEleNode, attr: HAttr) {

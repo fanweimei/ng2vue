@@ -84,6 +84,26 @@ export function commonAttrs(
         value: attr.value,
       });
       break;
+    case "[class.text-right]":
+      newAttrs.push({
+        key: ':class',
+        value: `{'text-right': ${attr.value}}`
+      });
+      break;
+    case "[innerHTML]":
+      let value = attr.value;
+      if((/\|\s*html/).test(attr.value)) {
+        value = attr.value.replace(/\|\s*html/, '');
+        newAttrs.push({
+          key: 'v-innerhtml',
+          value: null
+        });
+      }
+      newAttrs.push({
+        key: 'inner-html',
+        value: value
+      });
+      break;
     default:
       if (anyway) {
         if (attr.key.startsWith("#")) {
@@ -132,17 +152,26 @@ export function commonAttrs(
               });
             }
           } else {
-            // 如果不是变量，但是value值是true/false/数值，对应到vue中就是变量，防止警告提示
+            // 如果不是变量，但是value值是true/false/数值/不存在的情况，对应到vue中就是变量，防止警告提示
             if (
               !isVar &&
               (attr.value === "true" ||
                 attr.value === "false" ||
-                !Number.isNaN(Number(attr.value)))
+                !Number.isNaN(Number(attr.value))
+                || attr.value === null)
             ) {
-              newAttrs.push({
-                key: `:${name}`,
-                value: attr.value,
-              });
+              // v-show特殊处理
+              if(name == 'v-show') { // v-show是从hidden映射过来的，所以得反着来
+                newAttrs.push({
+                  key: `${name}`,
+                  value: attr.value === null ? 'false' : `!${attr.value}`,
+                });
+              } else {
+                newAttrs.push({
+                  key: `:${name}`,
+                  value: attr.value === null ? 'true' : attr.value,
+                });
+              }
             } else {
               newAttrs.push({
                 key: name,

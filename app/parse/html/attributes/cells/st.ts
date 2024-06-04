@@ -3,6 +3,7 @@ import { HAttr, HEleNode, HNodeType, TagType } from "../../typings";
 import { cloneDeep } from "lodash";
 import { strToObj } from "../../util";
 import { commonAttrs } from "./default";
+import { isRemoveAttr } from "../const";
 
 // st --> icc-dynamic-table (st简单处理)
 export function stAttrs(item: HEleNode) {
@@ -25,12 +26,14 @@ export function stAttrs(item: HEleNode) {
         break;
       case attr.key == "[page]":
         let page = strToObj(attr.value);
-        if (page && page.show == false) {
+        if (page.key == 'obj' && page.value.show == false) {
           newAttrs.push({ key: ":pagination", value: "false" });
         }
         break;
       default:
-        commonAttrs(attr, newAttrs);
+        if (!isRemoveAttr(item, attr)) {
+          commonAttrs(attr, newAttrs);
+        }
     }
   }
   // 处理子级

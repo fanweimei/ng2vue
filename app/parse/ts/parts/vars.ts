@@ -3,11 +3,12 @@ import { ComponentNg2Vue } from "../../index";
 import { TsParser } from "..";
 import { parseReactiveFormSource } from "../cells/form";
 import { createSourceTree, findNodeBFS, isChangeValue } from "../util";
-import { CallExpression, Node, SyntaxKind } from "typescript";
+import {  Block, CallExpression, Node, SyntaxKind } from "typescript";
 import { jsBasetype } from "../const";
 import * as strings from "../../../share/strings";
 import { parseSfSchema } from "../cells/sf";
 import { TagType } from "@ngParse/html/typings";
+import { GetterDeclaration, SetterDeclaration } from "@typescript-parser";
 
 export class TsParserVars {
   varMap = new Map<string, VarItem>();
@@ -15,7 +16,7 @@ export class TsParserVars {
   vForm = new Set<string>();
   codeLines: string[] = [];
 
-  constructor(public tsParser: TsParser, public ng2Vue: ComponentNg2Vue) {}
+  constructor(public tsParser: TsParser, public ng2Vue: ComponentNg2Vue) { }
 
   parse() {
     // 1. 解析sf标签涉及到的变量ui/schema变量需要处理合二为一
@@ -40,10 +41,13 @@ export class TsParserVars {
       }
     }
 
-    // 4. 解析html中使用的其它变量
+    // 5. 解析html中使用的其它变量
     this.ng2Vue.collect.useInHtmlVars.forEach((name: string) => {
       this.parseVar(name);
     });
+
+    // 6. 解析ng中的get函数，对应computed
+    this.parseAccessors();
   }
 
   parseVar(vName: string, changeValue = false) {
@@ -271,6 +275,115 @@ export class TsParserVars {
       });
   }
 
+  // 解析ng中的get 函数
+  parseAccessors() {
+    if (!this.tsParser.classDeclarations.accessors?.length) {
+      return;
+    }
+    for (let item of this.tsParser.accessors) {
+      if(item instanceof SetterDeclaration) {
+        this.parseSetter(item);
+      } else if(item instanceof GetterDeclaration) {
+        this.parseGetter(item);
+      }
+    }
+  }
+
+  // 解析ng中的set函数，对应vue环境watch
+  parseSetter(item: SetterDeclaration) {
+    let content = this.tsParser.source.slice(item.start, item.end);
+    // 去掉@Input()
+    if(item.isInput) {
+      content = content.replace('@Input()', '').trim();
+    }
+    // 去掉set 开头的四个字符
+    content = content.slice(4);
+    const root: Node = createSourceTree(content);
+    const blockNode = 
+      findNodeBFS(
+        root,
+        (node: Node) => node.kind === SyntaxKind.Block
+      ) as Block;
+    let valueStr = this.tsParser.methodParser.processCodeBlock(blockNode);
+    const callNode = findNodeBFS(root, (node:Node) => node.kind === SyntaxKind.CallExpression) as CallExpression;
+    let paramName = '', type;
+    if(callNode.arguments?.length >= 1) {
+      // 对应情况：insertText(v)
+      paramName = callNode.arguments[0].getText();
+    }
+    if(callNode.arguments?.length >= 2) {
+      // 对应情况：insertText(v: number)
+      type = callNode.arguments[1].getText();
+    }
+
+    // 拼接watch的第二个箭头函数
+    if(!paramName) {
+      valueStr = `() => ${valueStr}`;
+    } else {
+      if(!type) {
+        valueStr = `(${paramName}) => ${valueStr}`;
+      } else {
+        valueStr = `(${paramName}:${type}) => ${valueStr}`;
+      }
+    }
+    // 生成变量
+    if(item.isInput) {
+      // 如果是@Input，添加一条prop的变量，以及添加一条watchprop的变量
+      this.varMap.set(item.name, {
+        varType: VarType.prop,
+        type: type,
+        name: item.name,
+        isOptional: false,
+        isStatic: false,
+      });
+      this.varMap.set(`${item.name}_watchprop`, {
+        varType: VarType.watchprop,
+        type: type,
+        value: valueStr,
+        name: item.name,
+        isOptional: false,
+        isStatic: false,
+      });
+    } else {
+      // 如果不是@Input，添加一条ref的变量，以及添加一条watchprop的变量
+      this.varMap.set(item.name, {
+        varType: VarType.ref,
+        type: type,
+        name: item.name,
+        isOptional: false,
+        isStatic: false,
+      });
+      this.varMap.set(`${item.name}_watchref`, {
+        varType: VarType.watchref,
+        type: type,
+        value: valueStr,
+        name: item.name,
+        isOptional: false,
+        isStatic: false,
+      });
+    }
+  }
+
+  // 解析ng中的get函数，对应vue环境中computed
+  parseGetter(item: GetterDeclaration) {
+    let content = this.tsParser.source.slice(item.start + 4, item.end); // 加4去掉开头的get 共4个字符
+    const root: Node = createSourceTree(content);
+    const blockNode = 
+      findNodeBFS(
+        root,
+        (node: Node) => node.kind === SyntaxKind.Block
+      ) as Block;
+    const valueStr = this.tsParser.methodParser.processCodeBlock(blockNode);
+    let obj: VarItem = {
+      varType: VarType.computed,
+      value: valueStr,
+      name: item.name,
+      isStatic: item.isStatic,
+    };
+    // 放在前面防止进入死循环
+    this.varMap.set(item.name, obj);
+  }
+
   generateCode() {
     this.varMap.forEach((item) => {
       if (item.value) {
@@ -343,6 +456,14 @@ export class TsParserVars {
       vars.filter((e) => e.varType === VarType.proxy)
     );
     if (str) {
+      content += `${str}\n`;
+    }
+    str = this.generateComputedStr(vars.filter(e => e.varType === VarType.computed));
+    if(str) {
+      content += `${str}\n`;
+    }
+    str = this.generateWatchStr(vars.filter(e => e.varType === VarType.watchprop || e.varType === VarType.watchref));
+    if(str) {
       content += `${str}\n`;
     }
     return content.trim();
@@ -485,13 +606,11 @@ export class TsParserVars {
     let content = "";
     for (let item of vars) {
       if (item.type) {
-        content += `const ${item.name} = ref<${item.type}>(${
-          item.value === undefined ? "" : item.value
-        });\n`;
+        content += `const ${item.name} = ref<${item.type}>(${item.value === undefined ? "" : item.value
+          });\n`;
       } else {
-        content += `const ${item.name} = ref(${
-          item.value === undefined ? "" : item.value
-        });\n`;
+        content += `const ${item.name} = ref(${item.value === undefined ? "" : item.value
+          });\n`;
       }
     }
     this.tsParser.importParser.add("ref", "vue");
@@ -506,14 +625,43 @@ export class TsParserVars {
     let content = "";
     for (let item of vars) {
       if (item.type) {
-        content += `const ${item.name} = reactive<${item.type}>(${
-          item.value || "{}"
-        });\n`;
+        content += `const ${item.name} = reactive<${item.type}>(${item.value || "{}"
+          });\n`;
       } else {
         content += `const ${item.name} = reactive(${item.value || "{}"});\n`;
       }
     }
     this.tsParser.importParser.add("reactive", "vue");
+    return content.trim();
+  }
+
+  // computed
+  generateComputedStr(vars: VarItem[]) {
+    if(!vars.length) {
+      return "";
+    }
+    let content = "";
+    for(let item of vars) {
+      content += `const ${item.name} = computed(() => ${item.value});\n`;
+    }
+    this.tsParser.importParser.add("computed", "vue");
+    return content.trim();
+  }
+
+  // watch
+  generateWatchStr(vars: VarItem[]) {
+    if(!vars.length) {
+      return "";
+    }
+    let content = "";
+    for(let item of vars) {
+      if(item.varType === VarType.watchprop) {
+        content += `watch(() => props.${item.name}, ${item.value});\n`;
+      } else {
+        content += `watch(() => ${item.name}.value, ${item.value});\n`;
+      }
+    }
+    this.tsParser.importParser.add("watch", "vue");
     return content.trim();
   }
 }

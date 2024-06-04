@@ -64,11 +64,6 @@ export function replaceRouter(ssrName: string) {
       new RegExp(`this.${ssrName}.navigateByUrl`, "g"),
       `${ssrName}.push`
     );
-    // this.importParser.add("useRouter", "vue-router");
-    // this.importParser.useCodeMap.set(
-    //   ssrName,
-    //   `const ${ssrName} = useRouter();`
-    // );
     return blockSource;
   };
 }

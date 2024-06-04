@@ -10,4 +10,6 @@ export function imgAttrs(item: HEleNode) {
         ? attr.value.replace(/(\.\/)?assets/, "@icc/assets")
         : `require(${attr.value})`;
   }
+  // 过滤掉alt为空的情况
+  item.attributes = item.attributes.filter(e => !((e.key === ':alt' || e.key === 'alt') && !e.value));
 }

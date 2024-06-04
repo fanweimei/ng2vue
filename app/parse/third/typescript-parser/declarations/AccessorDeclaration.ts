@@ -43,4 +43,18 @@ export class GetterDeclaration extends AccessorDeclaration { }
  * @class SetterDeclaration
  * @extends {AccessorDeclaration}
  */
-export class SetterDeclaration extends AccessorDeclaration { }
+export class SetterDeclaration extends AccessorDeclaration {
+
+    constructor(
+        public name: string,
+        public isInput: boolean, // 是否是@Input修饰
+        public visibility: DeclarationVisibility | undefined,
+        public type: string | undefined,
+        public isAbstract: boolean,
+        public isStatic: boolean,
+        public start?: number,
+        public end?: number
+    ) {
+        super(name, visibility, type, isAbstract, isStatic, start, end);
+    }
+}

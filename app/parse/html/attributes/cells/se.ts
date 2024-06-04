@@ -1,5 +1,6 @@
 import { HAttr, HEleNode, HNode, HNodeType } from "../../typings";
 import { strToObj } from "../../util";
+import { isRemoveAttr } from "../const";
 import { commonAttrs } from "./default";
 
 // 获取se下的表单控件元素
@@ -36,94 +37,139 @@ function combFormItemRules(se: HEleNode, controlNode: HEleNode | null = null) {
   }
   let errorItem: HAttr;
   errorItem = se.attributes.splice(errorIndex, 1)[0];
+  if (!errorItem.value?.trim()) {
+    return;
+  }
   const hasRequired = se.attributes.find(
     (e) => e.key == "required" || e.key == "[required]"
   );
-  if (errorItem.key == "error" && hasRequired) {
-    return [
-      {
-        required: true,
-        message: errorItem.value,
-        whitespace: true,
-      },
-    ];
+  if (errorItem.key == "error") {
+    if (hasRequired) {
+      return [
+        {
+          required: true,
+          message: errorItem.value,
+          whitespace: true,
+        },
+      ];
+    } else {
+      return [
+        {
+          message: errorItem.value,
+          default: true
+        }
+      ]
+    }
   }
   if (errorItem.key == "[error]") {
     // 将字符串转成json
     const errorObj = strToObj(errorItem.value);
-    if (typeof errorObj == "string" && hasRequired) {
-      // 字符串形式
-      if (errorObj.startsWith("'")) {
-        return [
-          {
-            required: true,
-            message: errorItem.value?.slice(1, -1),
-            whitespace: true,
-          },
-        ];
-      } else {
+    switch (errorObj.key) {
+      case 'null':
+        return [];
+      case 'string':
+        if (hasRequired) {
+          // 字符串形式
+          return [
+            {
+              required: true,
+              message: errorObj.value,
+              whitespace: true,
+            },
+          ];
+        } else {
+          return [
+            {
+              message: errorItem.value,
+              default: true // 如果是字符串或者变量，但是又不是required，也就是error错误提示是唯一的字符串，可能是匹配到了正则
+            }
+          ];
+        }
+      case 'identifier':
         // 变量形式
-        return [
-          {
+        if (hasRequired) {
+          return [
+            {
+              required: true,
+              message: errorItem.value?.includes("$any")
+                ? errorItem.value?.replace("$any(", "").replace(")", "")
+                : errorItem.value,
+              whitespace: true,
+            },
+          ];
+        } else {
+          return [
+            {
+              message: errorItem.value?.includes("$any")
+                ? errorItem.value?.replace("$any(", "").replace(")", "")
+                : errorItem.value,
+              default: true
+            }
+          ];
+        }
+      default:
+        const rules: any[] = [];
+        const obj: any = errorObj.value;
+        if (hasRequired && obj.required) {
+          rules.push({
             required: true,
-            message: errorItem.value?.includes("$any")
-              ? errorItem.value?.replace("$any(", "").replace(")", "")
-              : errorItem.value,
+            message: obj.required,
             whitespace: true,
-          },
-        ];
-      }
-    }
-    const rules: any[] = [];
-    if (hasRequired && errorObj.required) {
-      rules.push({
-        required: true,
-        message: errorItem.value?.slice(1, -1),
-        whitespace: true,
-      });
-      delete errorObj.required;
-    }
-    if (!controlNode) {
-      return rules;
-    }
-    for (let attr of controlNode.attributes) {
-      let key = attr.key.replace("[", "").replace("]", "");
-      switch (key) {
-        case "maxlength":
-        case "maxLength":
-          if (errorObj[key]) {
-            rules.push({
-              max: +(attr.value || 0) || 0,
-              message: errorObj[key],
-            });
+          });
+          delete obj.required;
+        }
+        if (!controlNode) {
+          return rules;
+        }
+        for (let attr of controlNode.attributes) {
+          let key = attr.key.replace("[", "").replace("]", "");
+          switch (key) {
+            case "maxlength":
+            case "maxLength":
+              if (obj[key]) {
+                rules.push({
+                  max: +(attr.value || 0) || 0,
+                  message: obj[key],
+                });
+              }
+              delete obj[key];
+              break;
+            case "minlength":
+            case "minLength":
+              if (obj[key]) {
+                rules.push({
+                  min: +(attr.value || 0) || 0,
+                  message: obj[key],
+                });
+              }
+              delete obj[key];
+              break;
+            case "pattern":
+              if (obj[key]) {
+                rules.push({
+                  pattern: attr.value,
+                  message: obj[key],
+                });
+              }
+              delete obj[key];
+              break;
           }
-          delete errorObj[key];
-          break;
-        case "minlength":
-        case "minLength":
-          if (errorObj[key]) {
-            rules.push({
-              min: +(attr.value || 0) || 0,
-              message: errorObj[key],
-            });
+        }
+        for (let key in obj) {
+          switch(key) {
+            case 'pattern':
+              rules.push({pattern: 'xxx', message: obj[key]});
+              break;
+            case 'max':
+              rules.push({max: 'xxx', message: obj[key]});
+              break;
+            case 'min':
+              rules.push({min: 'xxx', message: obj[key]});
+              break;
           }
-          delete errorObj[key];
-          break;
-        case "pattern":
-          if (errorObj[key]) {
-            rules.push({
-              pattern: attr.value,
-              message: errorObj[key],
-            });
-          }
-          delete errorObj[key];
-          break;
-      }
+        }
+        return rules;
     }
-    for (let key in errorObj) {
-      rules.push({ validator: key });
-    }
-    return rules;
   }
 }
 
@@ -184,10 +230,12 @@ export function seAttrs(item: HEleNode) {
     if (attr.key.includes("labelWidth")) {
       newAttrs.push({
         key: ":label-col",
-        value: `{ span: ${Math.ceil(+(attr.value || 0) / 40)} }`,
+        value: `{ style: { width: '${attr.value.endsWith('px') ? attr.value : attr.value + 'px'}'} }`,
       });
     } else {
-      commonAttrs(attr, newAttrs);
+      if (!isRemoveAttr(item, attr)) {
+        commonAttrs(attr, newAttrs);
+      }
     }
   }
   item.attributes = newAttrs;

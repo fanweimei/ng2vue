@@ -12,7 +12,7 @@ export function tooltipDirective(item: HEleNode, attr: HAttr) {
   for (let attr of newNode.attributes) {
     attr.key = attr.key.replace("Tooltip", "");
     if (attr.key == "[(nzVisible)]") {
-      newAttrs.push({ key: "v-model:visible", value: attr.value });
+      newAttrs.push({ key: "v-model:open", value: attr.value });
     } else {
       commonAttrs(attr, newAttrs);
     }

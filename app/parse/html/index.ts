@@ -17,7 +17,7 @@ export class HtmlParser {
   // 特殊元素收集对象 标签名 --> (ref名 --> { node新对象， origin 原对象 })
   tagCollectMap: Map<
     TagType,
-    Map<string, { node: HEleNode; origin?: HEleNode; [key: string]: any }>
+    Map<string, { node: HEleNode; origin?: HEleNode;[key: string]: any }>
   > = new Map();
 
   constructor(parent: ComponentNg2Vue) {
@@ -28,7 +28,7 @@ export class HtmlParser {
   setTagNode(
     tagName: TagType,
     varName: string,
-    nodeInfo: { node: HEleNode; origin?: HEleNode; [key: string]: any }
+    nodeInfo: { node: HEleNode; origin?: HEleNode;[key: string]: any }
   ) {
     if (!this.tagCollectMap.has(tagName)) {
       this.tagCollectMap.set(tagName, new Map());
@@ -216,7 +216,7 @@ export class HtmlParser {
         return;
       }
       const ruleIndex = formItem.attributes.findIndex((e) => e.key == ":rules");
-      let newRules: any = [];
+      let result: any = [], newRules = [];
       if (ruleIndex != -1) {
         newRules = JSON.parse(formItem.attributes[ruleIndex].value);
         formItem.attributes.splice(ruleIndex, 1);
@@ -232,20 +232,19 @@ export class HtmlParser {
         let ruleKey = Object.keys(rule)[0];
         switch (ruleKey) {
           case "required":
-            if (!newRules.find((e) => Object.keys(e).includes(ruleKey))) {
-              newRules.push({
+            let item = newRules.find((e) => Object.keys(e).includes(ruleKey));
+            if (!item) {
+              let requireRule = newRules.find((e) =>
+                Object.keys(e).includes("required")
+              );
+              result.push({
                 required: rule[ruleKey],
-                message: `这是必填字段`,
+                message: requireRule ? requireRule.message : `这是必填字段`,
                 whitespace: true,
               });
+            } else {
+              result.push(item)
             }
-            break;
-          case "validator":
-            const fn = rule.validator
-              .replace(/\.bind\(.*\)/, "")
-              .replace("this", "");
-            newRules.push({ validator: fn });
-            this.parent.collect.dealMethods(fn);
             break;
           case "max":
           case "min":
@@ -275,40 +274,64 @@ export class HtmlParser {
               let requireRule = newRules.find((e) =>
                 Object.keys(e).includes("required")
               );
-              newRules.push({
-                pattern: "/" + rule.pattern.replace(`"`, ``) + "/g",
+              if (!requireRule) {
+                requireRule = newRules.find((e) =>
+                  Object.keys(e).includes("default")
+                );
+              }
+              let patternStr = rule.pattern;
+              if(patternStr.startsWith('"') || patternStr.startsWith("'")) {
+                patternStr = patternStr.slice(1, patternStr.length-1);
+              }
+              if(!patternStr.startsWith('/')) {
+                patternStr = `/${patternStr}/g`;
+              }
+              result.push({
+                pattern: patternStr,
                 message: requireRule
                   ? requireRule.message
                   : rule.pattern == EMAIL_REGEXP
-                  ? `输入的值不符合邮箱格式`
-                  : "输入的值格式不匹配",
+                    ? `输入的值不符合邮箱格式`
+                    : "输入的值格式不匹配",
               });
             } else {
               oldrule.pattern = "/" + rule.pattern.replace(`"`, ``) + "/g";
+              result.push(oldrule);
             }
             break;
+          case "maxLength":
           case "minLength":
             let m = ruleKey.slice(0, 3);
             oldrule = newRules.find((e) => Object.keys(e).includes(m));
             if (!oldrule) {
               if (parseInt(rule[ruleKey]) > 1) {
-                newRules.push({
+                result.push({
                   [m]: rule[ruleKey],
-                  message: `输入的值不能${m == "min" ? "少于" : "多于"}${
-                    rule[ruleKey]
-                  }个字符`,
+                  message: `输入的值不能${m == "min" ? "少于" : "多于"}${rule[ruleKey]}个字符`,
                 });
               }
             } else {
               oldrule[m] = rule[ruleKey];
+              result.push(oldrule);
+            }
+            break;
+          case 'validator':
+            const fn = rule[ruleKey]
+              .replace(/\.bind\(.*\)/, "")
+              .replace("this", "");
+            if (this.parent.tsParser.methods.find(e => e.name == fn) || this.parent.tsParser.properties.find(e => e.name == fn)) {
+              {
+                result.push({ validator: fn });
+                this.parent.collect.dealMethods(fn);
+              }
             }
             break;
         }
       }
-      if (newRules.length) {
+      if (result.length) {
         formItem.attributes.push({
           key: ":rules",
-          value: JSON.stringify(newRules),
+          value: JSON.stringify(result),
         });
       }
     });

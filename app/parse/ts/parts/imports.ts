@@ -1,6 +1,7 @@
 import { ComponentNg2Vue } from "../../index";
 import { TsParser } from "..";
 import { Import, NamedImport, SymbolSpecifier } from "@typescript-parser";
+import * as strings from "../../../share/strings";
 
 export class TsParserImports {
   imMap: Map<string, Import> = new Map();
@@ -68,11 +69,13 @@ export class TsParserImports {
       if (item.libraryName == "@icc/common-lib") {
         if (item instanceof NamedImport) {
           let utils = [],
-            msg = [],
-            components = [];
+            msg = [];
           for (let s of item.specifiers) {
             if (s.specifier.endsWith("Component")) {
-              components.push(s);
+              let libraryName = `@icc/components/${strings.dasherize(s.specifier.replace('Component', ''))}`;
+              let nameImport = new NamedImport(libraryName);
+              nameImport.defaultAlias = s.specifier;
+              this.imMap.set(libraryName, nameImport);
             } else if (s.specifier.endsWith("HelperImpl")) {
               msg.push(s);
             } else if (!s.specifier.endsWith("Service")) {
@@ -80,7 +83,6 @@ export class TsParserImports {
             }
           }
           this.addSpecifiers(utils, "@icc/utils");
-          this.addSpecifiers(components, "@icc/components");
           this.addSpecifiers(msg, "@icc/msg");
         }
         continue;
