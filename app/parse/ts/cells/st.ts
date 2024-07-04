@@ -46,11 +46,11 @@ export function replaceSt() {
       );
       blockSource = blockSource.replace(
         new RegExp(`this.${name}.pi`, "g"),
-        `this.${name}.pi.value`
+        `this.${name}.pi`
       );
       blockSource = blockSource.replace(
         new RegExp(`this.${name}.ps`, "g"),
-        `this.${name}.ps.value`
+        `this.${name}.ps`
       );
     });
     return blockSource;

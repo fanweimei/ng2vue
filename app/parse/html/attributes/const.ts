@@ -45,6 +45,7 @@ export const propsMap = {
     ngClass: "class",
     ngStyle: "style",
     hidden: "v-show",
+    PlaceHolder: 'placeholder'
   },
   "nz-tabset": {
     nzSelectedIndex: "v-model:activeKey",

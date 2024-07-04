@@ -37,7 +37,7 @@ export function processRouter(ssrName: string) {
           ((e as PropertyAssignment).name as Identifier).text == "queryParams"
       );
       if (queryNode) {
-        queryStr = (queryNode as PropertyAssignment).initializer.getText();
+        queryStr = (queryNode as PropertyAssignment).initializer?.getText();
       }
     }
     let str = "";

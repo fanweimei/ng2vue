@@ -279,7 +279,7 @@ export function nzFormItemAttrs(item: HEleNode) {
             r.min = tmp ? tmp.value : r.min;
           } else if (r.validator && r.validator == "uniqueNameValidator") {
             let tmp = inputNode.attributes.find((e) => e.key == "req");
-            r.validator = tmp ? `uniqueNameValidator(${tmp.value})` : tmp.value;
+            r.validator = tmp ? `uniqueNameValidator(${tmp.value})` : '';
           }
         }
       }

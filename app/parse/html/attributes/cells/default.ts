@@ -306,9 +306,13 @@ export function defaultAttrs(item: HEleNode) {
     if (attr && attr.key == "v-model:value") {
       attr.key = "v-model:checked";
     }
-    if (attr && attr.key == ":value") {
-      attr.key = ":checked";
-    }
+    /**
+     * 分两种情况，
+     * 如果是单纯a-radio/a-checkbox，那么是checked；如果是在分组下，那确实是value
+     */
+    // if (attr && attr.key == ":value") {
+    //   attr.key = ":checked";
+    // }
   }
   item.attributes = newAttrs;
   return item;
